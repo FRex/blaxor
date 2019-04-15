@@ -8,11 +8,12 @@ class BlaHexDisplay : public Fl_Widget
 public:
     BlaHexDisplay(int x, int y, int w, int h, const char * label = 0x0);
     void setFile(BlaHexFile * file);
+    void recalculateMetrics();
+    int getDisplayLineCount() const;
 
 private:
     virtual void draw() override;
     void drawHexLine(int lineno);
-    void recalculateMetrics();
 
     int m_addresschars = 6;
     int m_bytesperline = 15;
