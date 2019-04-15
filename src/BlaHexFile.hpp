@@ -1,4 +1,5 @@
 #pragma once
+#include <vector>
 
 namespace bla {
 typedef unsigned long long i64;
@@ -9,14 +10,11 @@ static_assert(sizeof(bla::i64) == 8, "i64 is not 8 bytes");
 class BlaHexFile
 {
 public:
-    virtual bla::i64 filesize() const
-    {
-        return 1000000123;
-    }
+    bool open(const char * fname);
+    bla::i64 filesize() const;
+    unsigned char getByte(bla::i64 pos) const;
 
-    virtual unsigned char getByte(bla::i64 pos) const
-    {
-        return static_cast<unsigned char>(pos & 0xff);
-    }
+private:
+    std::vector<unsigned char> m_buff;
 
 };
