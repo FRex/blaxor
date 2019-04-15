@@ -1,0 +1,89 @@
+#define WIN32
+#define _CRT_SECURE_NO_WARNINGS
+
+#include <FL/Fl.H>
+#include <FL/Fl_Double_Window.H>
+#include <FL/Fl_Scroll.H>
+#include <FL/fl_draw.H>
+
+static void mycallback(Fl_Widget * widget, void * udata)
+{
+    widget->label("Wuuuuuut");
+}
+
+class MyWidget : public Fl_Widget
+{
+public:
+    MyWidget(int x, int y, int w, int h, const char * label) : Fl_Widget(x, y, w, h, label)
+    {
+    }
+
+private:
+    virtual void draw() override
+    {
+        if(!parent())
+            return;
+
+        Fl_Scroll * scroll = dynamic_cast<Fl_Scroll *>(parent());
+        int sx = scroll->xposition();
+        int sy = scroll->yposition();
+        int sw = scroll->w();
+        int sh = scroll->h();
+
+        //draw_box(FL_FLAT_BOX, x(), y(), w(), h(), 0xff000000);
+        //draw_box(FL_FLAT_BOX, x() + sx + 15, y() + sy + 15, sw - 30, sh - 30, 0x00ff0000);
+
+        draw_focus();
+
+        //sx = sy = 0;
+        fl_draw_box(FL_FLAT_BOX, x(), y(), 50, 50, 0xff00ff00);
+        fl_color(FL_BLACK);
+
+        //fl_font(FL_HELVETICA, 16.f);
+        fl_font(FL_SCREEN, 16.f);
+        int mx = 0, my = 0;
+        for(int i = 0; i < 20; ++i)
+        {
+            char buff[50];
+            sprintf(buff, "0x%08d", i + 1);
+            fl_draw(buff, x(), y() + fl_height() - fl_descent() + i * fl_height());
+            fl_measure(buff, mx, my);
+        }//for
+
+        mx += 10;
+        fl_line(x() + mx, y(), x() + mx, y() + 100);
+
+        mx += 10;
+
+        for(int i = 0; i < 20; ++i)
+        {
+            char buff[50];
+            sprintf(buff, "%c%c", 'a' + i, 'A' + i);
+            fl_draw(buff, x() + mx, y() + fl_height() - fl_descent() + i * fl_height());
+            //fl_measure(buff, mx, my);
+
+
+        }//for
+
+        //fl_draw("Test1", x() + sx + 15, y() + sy + 15);
+        //draw_focus();
+
+    }
+
+};
+
+int main(int argc, char ** argv)
+{
+    Fl_Double_Window win(800, 600, "Hello FLTK!");
+    win.color(0x00ff0000);
+
+    auto scroll = new Fl_Scroll(15, 15, 770, 570, "MuhScrollArea");
+    scroll->type(Fl_Scroll::BOTH_ALWAYS);
+    scroll->scroll_to(0, 0);
+
+    auto my = new MyWidget(50, 50, 1000, 1000, "MyWidget");
+
+
+    win.show(argc, argv);
+    return Fl::run();
+}
