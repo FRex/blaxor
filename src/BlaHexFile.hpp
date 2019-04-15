@@ -11,7 +11,7 @@ class BlaHexFile
 public:
     virtual bla::i64 filesize() const
     {
-        return 1234;
+        return 123;
     }
 
     virtual unsigned char getByte(bla::i64 pos) const

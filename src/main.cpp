@@ -25,7 +25,7 @@ int main(int argc, char ** argv)
     BlaHexFile file;
     my->setFile(&file);
     sb->callback(mycallback, my);
-    sb->bounds(0, 10);
+    sb->bounds(0, 20);
     sb->slider_size(0.1);
     sb->linesize(1);
     win.show(); //win.show(argc, argv);

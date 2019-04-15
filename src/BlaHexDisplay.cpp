@@ -6,6 +6,7 @@
 #include <cstdio>
 #include <FL/fl_draw.H>
 #include "BlaHexFile.hpp"
+#include <algorithm>
 
 static int bla_text_width(const char * str)
 {
@@ -47,21 +48,21 @@ void BlaHexDisplay::drawHexLine(int lineno)
     char buff[400];
     std::memset(buff, '\0', 400);
 
-    const int bytestart = lineno * m_bytesperline;
-    const int bytecount = m_bytesperline;
+    const int bytestart = (lineno + m_startingline) * m_bytesperline;
+    const int bytecount = std::min<int>(m_bytesperline, m_file->filesize() - bytestart);
+
+    if(bytecount <= 0)
+        return;
 
     //addr display
-    sprintf(buff, "%0*X", m_addresschars, (lineno + m_startingline) * m_bytesperline);
+    sprintf(buff, "%0*X", m_addresschars, bytestart);
     fl_draw(buff, x(), y() + yoff);
 
     //hex display
     for(int i = 0; i < bytecount; ++i)
     {
         const unsigned char byte = m_file->getByte(bytestart + i);
-        buff[i * 3 + 0] = 'A';
-        buff[i * 3 + 1] = 'B';
-        buff[i * 3 + 2] = ' ';
-        buff[i * 3 + 3] = '\0';
+        sprintf(buff + i * 3, "%02x ", byte);
     }//for
     buff[m_bytesperline * 3 - 1] = '\0';
     fl_draw(buff, x() + m_line1 + m_padding, y() + yoff);
