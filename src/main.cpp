@@ -35,9 +35,6 @@ int main(int argc, char ** argv)
     my->recalculateMetrics();
     my->setLineScrollbar(sb);
     sb->callback(mycallback, my);
-    sb->bounds(0, my->getDisplayLineCount());
-    sb->slider_size(0.1);
-    sb->linesize(1);
     win.show(); //win.show(argc, argv);
     return Fl::run();
 }

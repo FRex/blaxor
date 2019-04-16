@@ -377,6 +377,20 @@ int BlaHexDisplay::getDisplayLineCount() const
 void BlaHexDisplay::setLineScrollbar(Fl_Scrollbar * scrollbar)
 {
     m_linescrollbar = scrollbar;
+
+    const int totallines = getDisplayLineCount();
+    if(totallines <= m_linesdisplayed)
+    {
+        m_linescrollbar->bounds(0, 0);
+        m_linescrollbar->slider_size(1.0);
+    }
+    else
+    {
+        m_linescrollbar->bounds(0, totallines - m_linesdisplayed);
+        const double r = static_cast<double>(m_linesdisplayed) / static_cast<double>(totallines);
+        m_linescrollbar->slider_size(r);
+        m_linescrollbar->linesize(1);
+    }
 }
 
 void BlaHexDisplay::setFile(BlaHexFile * file)
