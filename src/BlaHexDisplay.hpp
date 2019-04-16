@@ -12,6 +12,8 @@ public:
     int h = 0;
 };
 
+class Fl_Scrollbar;
+
 class BlaHexDisplay : public Fl_Widget
 {
 public:
@@ -19,6 +21,7 @@ public:
     void setFile(BlaHexFile * file);
     void recalculateMetrics();
     int getDisplayLineCount() const;
+    void setLineScrollbar(Fl_Scrollbar * scrollbar);
 
 private:
     virtual void draw() override;
@@ -45,6 +48,7 @@ private:
     int m_linesdisplayed = 0;
     int m_onecharwidth = 0;
     int m_onecharheight = 0;
+    Fl_Scrollbar * m_linescrollbar = 0x0;
 
 public: int m_startingline = 0;
 

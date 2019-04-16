@@ -6,6 +6,7 @@
 #include <cstring>
 #include <cstdio>
 #include <FL/fl_draw.H>
+#include <FL/Fl_Scrollbar.H>
 #include "BlaHexFile.hpp"
 #include <algorithm>
 
@@ -112,6 +113,8 @@ int BlaHexDisplay::handle(int event)
         case FL_Down:
         case FL_Left:
         case FL_Right:
+        case FL_Page_Up:
+        case FL_Page_Down:
             attemptSelectionMove(Fl::event_key());
             return 1;
         }//switch event key
@@ -220,43 +223,78 @@ bool BlaHexDisplay::selectedByteAt(int xx, int yy) const
 
 void BlaHexDisplay::attemptSelectionMove(int event)
 {
+    int newselection = m_selectedbyte;
+
     if(event == FL_Up)
     {
-        const int newselection = m_selectedbyte - m_bytesperline;
-        if(newselection >= 0 && newselection != m_selectedbyte)
-        {
-            m_selectedbyte = newselection;
-            redraw();
-        }
+        if(newselection - m_bytesperline >= 0)
+            newselection = newselection - m_bytesperline;
     }//FL_Up
 
     if(event == FL_Down)
     {
-        const int newselection = m_selectedbyte + m_bytesperline;
-        if(newselection < m_file->filesize() && newselection != m_selectedbyte)
-        {
-            m_selectedbyte = newselection;
-            redraw();
-        }
+        if(newselection + m_bytesperline < m_file->filesize())
+            newselection = newselection + m_bytesperline;
     }//FL_Down
 
     if(event == FL_Left)
     {
-        if(m_selectedbyte > 0)
-        {
-            m_selectedbyte = m_selectedbyte - 1;
-            redraw();
-        }
+        if(newselection - 1 >= 0)
+            newselection = newselection - 1;
     }//FL_Left
 
     if(event == FL_Right)
     {
-        if((m_selectedbyte + 1) < m_file->filesize())
-        {
-            m_selectedbyte = m_selectedbyte + 1;
-            redraw();
-        }
+        if(newselection + 1 < m_file->filesize())
+            newselection = newselection + 1;
     }//FL_Right
+
+    if(event == FL_Page_Up)
+    {
+        for(int i = m_linesdisplayed; i > 0; --i)
+        {
+            if(newselection - m_bytesperline * i >= 0)
+            {
+                newselection = newselection - m_bytesperline * i;
+                break;
+            }
+        }//for i
+    }
+
+    if(event == FL_Page_Down)
+    {
+        for(int i = m_linesdisplayed; i > 0; --i)
+        {
+            if(newselection + m_bytesperline * i < m_file->filesize())
+            {
+                newselection = newselection + m_bytesperline * i;
+                break;
+            }
+        }//for i
+    }
+
+    if(newselection != m_selectedbyte)
+    {
+        const int oldline = m_selectedbyte / m_bytesperline;
+        m_selectedbyte = newselection;
+        redraw();
+        if(m_linescrollbar)
+        {
+            const int newline = m_selectedbyte / m_bytesperline;
+
+            if(newline < m_startingline)
+            {
+                m_linescrollbar->value(newline);
+                m_linescrollbar->do_callback();
+            }
+
+            if(newline >= m_startingline + m_linesdisplayed)
+            {
+                m_linescrollbar->value(newline - m_linesdisplayed + 1);
+                m_linescrollbar->do_callback();
+            }
+        }//if m_linescrollbar
+    }
 }
 
 //helper to calculate amount of hex digit to display any byte's position in a file
@@ -332,6 +370,11 @@ int BlaHexDisplay::getDisplayLineCount() const
         return 1;
 
     return (m_file->filesize() + m_bytesperline - 1) / m_bytesperline;
+}
+
+void BlaHexDisplay::setLineScrollbar(Fl_Scrollbar * scrollbar)
+{
+    m_linescrollbar = scrollbar;
 }
 
 void BlaHexDisplay::setFile(BlaHexFile * file)

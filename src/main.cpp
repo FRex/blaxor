@@ -30,6 +30,7 @@ int main(int argc, char ** argv)
     win.color(FL_RED);
     Fl_Scrollbar * sb = new Fl_Scrollbar(w - scrollballw, 0, scrollballw, h);
     auto my = new BlaHexDisplay(15, 15, w - scrollballw - 30, h - 30);
+    my->setLineScrollbar(sb);
     BlaHexFile file;
     file.open(argv[1]);
     my->setFile(&file);
