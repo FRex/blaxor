@@ -49,6 +49,7 @@ private:
     int m_onecharwidth = 0;
     int m_onecharheight = 0;
     Fl_Scrollbar * m_linescrollbar = 0x0;
+    BlaIntRect m_charareabox;
 
 public: int m_startingline = 0;
 

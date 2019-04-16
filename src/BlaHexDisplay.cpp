@@ -46,26 +46,6 @@ void BlaHexDisplay::draw()
     fl_yxline(x() + m_line1, y(), y() + ymax);
     fl_yxline(x() + m_line2, y(), y() + ymax);
 
-
-    if(1)
-        fl_draw_box(
-            FL_FLAT_BOX,
-            x() + m_hexareabox.x - m_addresschars / 2,
-            y() + m_hexareabox.y - m_addresschars / 2,
-            m_hexareabox.w + m_addresschars,
-            m_hexareabox.h + m_addresschars,
-            FL_GREEN
-        );
-    else
-        fl_draw_box(
-            FL_FLAT_BOX,
-            x() + m_hexareabox.x,
-            y() + m_hexareabox.y,
-            m_hexareabox.w,
-            m_hexareabox.h,
-            FL_GREEN
-        );
-
     for(int j = 0; j < m_linesdisplayed; ++j)
     {
         drawAddr(j);
@@ -92,6 +72,20 @@ int BlaHexDisplay::handle(int event)
             const int yy = Fl::event_y() - y() - m_hexareabox.y;
             const int cx = xx / ((m_hexareabox.w + m_onecharwidth) / m_bytesperline);
             const int cy = yy / ((m_hexareabox.h) / m_linesdisplayed);
+            if(gotByteAt(cx, cy))
+                m_selectedbyte = (cy + m_startingline) * m_bytesperline + cx;
+
+            redraw();
+            return 1;
+        }
+
+        if(Fl::event_inside(x() + m_charareabox.x, y() + m_charareabox.y, m_charareabox.w, m_charareabox.h))
+        {
+            //TODO: move this check to a function, and move index calc to a function
+            const int xx = Fl::event_x() - x() - m_charareabox.x;
+            const int yy = Fl::event_y() - y() - m_charareabox.y;
+            const int cx = xx / (m_charareabox.w / m_bytesperline);
+            const int cy = yy / (m_charareabox.h / m_linesdisplayed);
             if(gotByteAt(cx, cy))
                 m_selectedbyte = (cy + m_startingline) * m_bytesperline + cx;
 
@@ -362,6 +356,12 @@ void BlaHexDisplay::recalculateMetrics()
 
     m_onecharwidth = bla_text_width("A");
     m_onecharheight = bla_text_height("A");
+
+    m_charareabox.x = m_line2 + m_padding;
+    m_charareabox.y = 0;
+    m_charareabox.w = m_onecharwidth * m_bytesperline;
+    m_charareabox.h = m_linesdisplayed * fl_height();
+
 }
 
 int BlaHexDisplay::getDisplayLineCount() const
