@@ -13,7 +13,13 @@ public:
 
 private:
     virtual void draw() override;
-    void drawHexLine(int lineno);
+
+    void drawAddr(int yy);
+    void drawHex(int xx, int yy);
+    void drawChar(int xx, int yy);
+
+    unsigned char getByteAt(int xx, int yy) const;
+    bool gotByteAt(int xx, int yy) const;
 
     int m_addresschars = 6;
     int m_bytesperline = 15;

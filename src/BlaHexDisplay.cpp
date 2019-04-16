@@ -37,57 +37,103 @@ void BlaHexDisplay::draw()
     const int ymax = fl_height() * lines;
     fl_yxline(x() + m_line1, y(), y() + ymax);
     fl_yxline(x() + m_line2, y(), y() + ymax);
-    for(int i = 0; i < lines; ++i)
-        drawHexLine(i);
+
+    for(int j = 0; j < lines; ++j)
+    {
+        drawAddr(j);
+        for(int i = 0; i < m_bytesperline; ++i)
+        {
+            drawHex(i, j);
+            drawChar(i, j);
+        }//for i
+    }//for j
 
     //draw_focus();
 }
 
-static char toDisplayChar(unsigned char byte)
+static bool isDisplayChar(unsigned char byte)
 {
     //printable ascii range is [0x20, 0x7f)
-    if(byte >= 0x20 && byte < 0x7f)
-        return static_cast<char>(byte);
-
-    return '.';
+    return byte >= 0x20 && byte < 0x7f;
 }
 
-void BlaHexDisplay::drawHexLine(int lineno)
+static char toDisplayChar(unsigned char byte)
 {
-    fl_color(FL_BLACK);
-    fl_font(kHexFontFace, kHexFontSize);
+    if(isDisplayChar(byte))
+        return static_cast<char>(byte);
+    else
+        return '.';
+}
 
-    const int yoff = fl_height() - fl_descent() + lineno * fl_height();
-    char buff[400];
-    std::memset(buff, '\0', 400);
-
-    const int bytestart = (lineno + m_startingline) * m_bytesperline;
-    const int bytecount = std::min<int>(m_bytesperline, m_file->filesize() - bytestart);
-
-    if(bytecount <= 0)
+void BlaHexDisplay::drawAddr(int yy)
+{
+    if(!gotByteAt(0, yy))
         return;
 
-    //addr display
+    const int xpos = x();
+    const int ypos = y() + fl_height() - fl_descent() + yy * fl_height();
+    const int bytestart = (yy + m_startingline) * m_bytesperline;
+
+    char buff[100];
     sprintf(buff, "%0*X", m_addresschars, bytestart);
-    fl_draw(buff, x(), y() + yoff);
 
-    //hex display
-    for(int i = 0; i < bytecount; ++i)
-    {
-        const unsigned char byte = m_file->getByte(bytestart + i);
-        sprintf(buff + i * 3, "%02x ", byte);
-    }//for
-    buff[m_bytesperline * 3 - 1] = '\0';
-    fl_draw(buff, x() + m_line1 + m_padding, y() + yoff);
+    fl_color(FL_BLACK);
+    fl_draw(buff, xpos, ypos);
+}
 
-    //char display
-    std::memset(buff, '\0', 400);
-    for(int i = 0; i < bytecount; ++i)
-    {
-        const unsigned char byte = m_file->getByte(bytestart + i);
-        buff[i] = toDisplayChar(byte);
-    }
-    fl_draw(buff, x() + m_line2 + m_padding, y() + yoff);
+void BlaHexDisplay::drawHex(int xx, int yy)
+{
+    if(!gotByteAt(xx, yy))
+        return;
+
+    const unsigned char byte = getByteAt(xx, yy);
+    const int charsbefore = (xx == 0) ? 0 : (3 * xx - 1);
+    const int xpos = x() + m_line1 + m_padding + charsbefore * bla_text_width("A");
+    const int ypos = y() + fl_height() - fl_descent() + yy * fl_height();
+
+    const char * padstr = (xx > 0) ? " " : "";
+    char buff[10];
+    sprintf(buff, "%s%02x", padstr, byte);
+
+    if(isDisplayChar(byte))
+        fl_color(FL_RED);
+    else
+        fl_color(FL_BLACK);
+
+    fl_draw(buff, xpos, ypos);
+}
+
+void BlaHexDisplay::drawChar(int xx, int yy)
+{
+    if(!gotByteAt(xx, yy))
+        return;
+
+    const unsigned char byte = getByteAt(xx, yy);
+    const int xpos = x() + m_line2 + m_padding + xx * bla_text_width("A");
+    const int ypos = y() + fl_height() - fl_descent() + yy * fl_height();
+
+    char buff[2];
+    buff[0] = toDisplayChar(byte);
+    buff[1] = '\0';
+
+    if(isDisplayChar(byte))
+        fl_color(FL_RED);
+    else
+        fl_color(FL_BLACK);
+
+    fl_draw(buff, xpos, ypos);
+}
+
+unsigned char BlaHexDisplay::getByteAt(int xx, int yy) const
+{
+    const int idx = (yy + m_startingline) * m_bytesperline + xx;
+    return m_file->getByte(idx);
+}
+
+bool BlaHexDisplay::gotByteAt(int xx, int yy) const
+{
+    const int idx = (yy + m_startingline) * m_bytesperline + xx;
+    return idx < m_file->filesize();
 }
 
 //helper to calculate amount of hex digit to display any byte's position in a file
@@ -117,7 +163,7 @@ void BlaHexDisplay::recalculateMetrics()
     const int addrwidth = bla_text_width(buff);
 
     m_bytesperline = 1;
-    const int powers[] = {2, 4, 8, 16, 32, 64};
+    const int powers[] = { 2, 4, 8, 16, 32, 64 };
     int lastgoodattempt = 0;
     for(int i : powers)
     {
