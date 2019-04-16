@@ -88,10 +88,10 @@ int BlaHexDisplay::handle(int event)
         if(Fl::event_inside(x() + m_hexareabox.x, y() + m_hexareabox.y, m_hexareabox.w, m_hexareabox.h))
         {
             //TODO: move this check to a function, and move index calc to a function
-            const int xx = Fl::event_x() - x() - m_hexareabox.x;
+            const int xx = Fl::event_x() - x() - m_hexareabox.x + m_onecharwidth / 2;
             const int yy = Fl::event_y() - y() - m_hexareabox.y;
             const int cx = xx / ((m_hexareabox.w + m_onecharwidth) / m_bytesperline);
-            const int cy = yy / ((m_hexareabox.h + m_onecharheight) / m_linesdisplayed);
+            const int cy = yy / ((m_hexareabox.h) / m_linesdisplayed);
             if(gotByteAt(cx, cy))
                 m_selectedbyte = (cy + m_startingline) * m_bytesperline + cx;
 
