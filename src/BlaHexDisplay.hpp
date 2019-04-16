@@ -32,6 +32,8 @@ private:
     bool gotByteAt(int xx, int yy) const;
     bool selectedByteAt(int xx, int yy) const;
 
+    void attemptSelectionMove(int event);
+
     int m_addresschars = 6;
     int m_bytesperline = 15;
     int m_padding = 4;

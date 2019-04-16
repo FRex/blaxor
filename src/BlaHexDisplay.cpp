@@ -1,5 +1,6 @@
 #define WIN32
 #define _CRT_SECURE_NO_WARNINGS
+#define NOMINMAX
 #include "BlaHexDisplay.hpp"
 #include <FL/Fl.H>
 #include <cstring>
@@ -98,11 +99,27 @@ int BlaHexDisplay::handle(int event)
         }
 
         break;
+    case FL_FOCUS:
+        printf("FL_FOCUS\n");
+        return 1;
+    case FL_UNFOCUS:
+        printf("FL_UNFOCUS\n");
+        return 1;
+    case FL_KEYDOWN:
+        switch(Fl::event_key())
+        {
+        case FL_Up:
+        case FL_Down:
+        case FL_Left:
+        case FL_Right:
+            attemptSelectionMove(Fl::event_key());
+            return 1;
+        }//switch event key
+        break;
     }//switch
 
     return 0;
 }
-
 
 static bool isDisplayChar(unsigned char byte)
 {
@@ -199,6 +216,47 @@ bool BlaHexDisplay::selectedByteAt(int xx, int yy) const
 {
     const int idx = (yy + m_startingline) * m_bytesperline + xx;
     return idx == m_selectedbyte;
+}
+
+void BlaHexDisplay::attemptSelectionMove(int event)
+{
+    if(event == FL_Up)
+    {
+        const int newselection = m_selectedbyte - m_bytesperline;
+        if(newselection >= 0 && newselection != m_selectedbyte)
+        {
+            m_selectedbyte = newselection;
+            redraw();
+        }
+    }//FL_Up
+
+    if(event == FL_Down)
+    {
+        const int newselection = m_selectedbyte + m_bytesperline;
+        if(newselection < m_file->filesize() && newselection != m_selectedbyte)
+        {
+            m_selectedbyte = newselection;
+            redraw();
+        }
+    }//FL_Down
+
+    if(event == FL_Left)
+    {
+        if(m_selectedbyte > 0)
+        {
+            m_selectedbyte = m_selectedbyte - 1;
+            redraw();
+        }
+    }//FL_Left
+
+    if(event == FL_Right)
+    {
+        if((m_selectedbyte + 1) < m_file->filesize())
+        {
+            m_selectedbyte = m_selectedbyte + 1;
+            redraw();
+        }
+    }//FL_Right
 }
 
 //helper to calculate amount of hex digit to display any byte's position in a file
