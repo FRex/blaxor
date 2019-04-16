@@ -31,6 +31,7 @@ private:
     void drawHex(int xx, int yy);
     void drawChar(int xx, int yy);
 
+    int byteIndexAt(int xx, int yy) const;
     unsigned char getByteAt(int xx, int yy) const;
     bool gotByteAt(int xx, int yy) const;
     bool selectedByteAt(int xx, int yy) const;

@@ -29,11 +29,11 @@ int main(int argc, char ** argv)
     Fl_Double_Window win(w, h, argv[1]);
     Fl_Scrollbar * sb = new Fl_Scrollbar(w - scrollballw, 0, scrollballw, h);
     auto my = new BlaHexDisplay(0, 0, w - scrollballw, h);
-    my->setLineScrollbar(sb);
     BlaHexFile file;
     file.open(argv[1]);
     my->setFile(&file);
     my->recalculateMetrics();
+    my->setLineScrollbar(sb);
     sb->callback(mycallback, my);
     sb->bounds(0, my->getDisplayLineCount());
     sb->slider_size(0.1);

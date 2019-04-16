@@ -73,7 +73,7 @@ int BlaHexDisplay::handle(int event)
             const int cx = xx / ((m_hexareabox.w + m_onecharwidth) / m_bytesperline);
             const int cy = yy / ((m_hexareabox.h) / m_linesdisplayed);
             if(gotByteAt(cx, cy))
-                m_selectedbyte = (cy + m_startingline) * m_bytesperline + cx;
+                m_selectedbyte = byteIndexAt(cx, cy);
 
             redraw();
             return 1;
@@ -87,7 +87,7 @@ int BlaHexDisplay::handle(int event)
             const int cx = xx / (m_charareabox.w / m_bytesperline);
             const int cy = yy / (m_charareabox.h / m_linesdisplayed);
             if(gotByteAt(cx, cy))
-                m_selectedbyte = (cy + m_startingline) * m_bytesperline + cx;
+                m_selectedbyte = byteIndexAt(cx, cy);
 
             redraw();
             return 1;
@@ -139,7 +139,7 @@ void BlaHexDisplay::drawAddr(int yy)
 
     const int xpos = x();
     const int ypos = y() + fl_height() - fl_descent() + yy * fl_height();
-    const int bytestart = (yy + m_startingline) * m_bytesperline;
+    const int bytestart = byteIndexAt(0, yy);
 
     char buff[100];
     sprintf(buff, "%0*X", m_addresschars, bytestart);
@@ -197,22 +197,24 @@ void BlaHexDisplay::drawChar(int xx, int yy)
     fl_draw(buff, xpos, ypos);
 }
 
+int BlaHexDisplay::byteIndexAt(int xx, int yy) const
+{
+    return (yy + m_startingline) * m_bytesperline + xx;
+}
+
 unsigned char BlaHexDisplay::getByteAt(int xx, int yy) const
 {
-    const int idx = (yy + m_startingline) * m_bytesperline + xx;
-    return m_file->getByte(idx);
+    return m_file->getByte(byteIndexAt(xx, yy));
 }
 
 bool BlaHexDisplay::gotByteAt(int xx, int yy) const
 {
-    const int idx = (yy + m_startingline) * m_bytesperline + xx;
-    return idx < m_file->filesize();
+    return byteIndexAt(xx, yy) < m_file->filesize();
 }
 
 bool BlaHexDisplay::selectedByteAt(int xx, int yy) const
 {
-    const int idx = (yy + m_startingline) * m_bytesperline + xx;
-    return idx == m_selectedbyte;
+    return byteIndexAt(xx, yy) == m_selectedbyte;
 }
 
 void BlaHexDisplay::attemptSelectionMove(int event)
