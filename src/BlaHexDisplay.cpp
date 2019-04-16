@@ -177,6 +177,9 @@ void BlaHexDisplay::drawChar(int xx, int yy)
     else
         fl_color(FL_BLACK);
 
+    if(selectedByteAt(xx, yy))
+        fl_color(FL_YELLOW);
+
     fl_draw(buff, xpos, ypos);
 }
 
