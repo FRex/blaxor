@@ -3,6 +3,15 @@
 
 class BlaHexFile;
 
+class BlaIntRect
+{
+public:
+    int x = 0;
+    int y = 0;
+    int w = 0;
+    int h = 0;
+};
+
 class BlaHexDisplay : public Fl_Widget
 {
 public:
@@ -13,6 +22,7 @@ public:
 
 private:
     virtual void draw() override;
+    virtual int handle(int event) override;
 
     void drawAddr(int yy);
     void drawHex(int xx, int yy);
@@ -20,6 +30,7 @@ private:
 
     unsigned char getByteAt(int xx, int yy) const;
     bool gotByteAt(int xx, int yy) const;
+    bool selectedByteAt(int xx, int yy) const;
 
     int m_addresschars = 6;
     int m_bytesperline = 15;
@@ -27,6 +38,11 @@ private:
     int m_line1 = 10;
     int m_line2 = 20;
     BlaHexFile * m_file = 0x0;
+    int m_selectedbyte = 0;
+    BlaIntRect m_hexareabox;
+    int m_linesdisplayed = 0;
+    int m_onecharwidth = 0;
+    int m_onecharheight = 0;
 
 public: int m_startingline = 0;
 

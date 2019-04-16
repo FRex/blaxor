@@ -18,6 +18,13 @@ static int bla_text_width(const char * str)
     return w;
 }
 
+static int bla_text_height(const char * str)
+{
+    int w = 0, h = 0;
+    fl_measure(str, w, h, 0);
+    return h;
+}
+
 BlaHexDisplay::BlaHexDisplay(int x, int y, int w, int h, const char * label) : Fl_Widget(x, y, w, h, label)
 {
     box(FL_FLAT_BOX);
@@ -33,12 +40,31 @@ void BlaHexDisplay::draw()
     //TODO: some check here that widget is big enough to work
     fl_color(FL_BLACK);
     fl_font(kHexFontFace, kHexFontSize);
-    const int lines = h() / fl_height();
-    const int ymax = fl_height() * lines;
+    const int ymax = fl_height() * m_linesdisplayed;
     fl_yxline(x() + m_line1, y(), y() + ymax);
     fl_yxline(x() + m_line2, y(), y() + ymax);
 
-    for(int j = 0; j < lines; ++j)
+
+    if(1)
+        fl_draw_box(
+            FL_FLAT_BOX,
+            x() + m_hexareabox.x - m_addresschars / 2,
+            y() + m_hexareabox.y - m_addresschars / 2,
+            m_hexareabox.w + m_addresschars,
+            m_hexareabox.h + m_addresschars,
+            FL_GREEN
+        );
+    else
+        fl_draw_box(
+            FL_FLAT_BOX,
+            x() + m_hexareabox.x,
+            y() + m_hexareabox.y,
+            m_hexareabox.w,
+            m_hexareabox.h,
+            FL_GREEN
+        );
+
+    for(int j = 0; j < m_linesdisplayed; ++j)
     {
         drawAddr(j);
         for(int i = 0; i < m_bytesperline; ++i)
@@ -50,6 +76,33 @@ void BlaHexDisplay::draw()
 
     //draw_focus();
 }
+
+int BlaHexDisplay::handle(int event)
+{
+    switch(event)
+    {
+    case FL_PUSH:
+
+        if(Fl::event_inside(x() + m_hexareabox.x, y() + m_hexareabox.y, m_hexareabox.w, m_hexareabox.h))
+        {
+            //TODO: move this check to a function, and move index calc to a function
+            const int xx = Fl::event_x() - x() - m_hexareabox.x;
+            const int yy = Fl::event_y() - y() - m_hexareabox.y;
+            const int cx = xx / ((m_hexareabox.w + m_onecharwidth) / m_bytesperline);
+            const int cy = yy / ((m_hexareabox.h + m_onecharheight) / m_linesdisplayed);
+            if(gotByteAt(cx, cy))
+                m_selectedbyte = (cy + m_startingline) * m_bytesperline + cx;
+
+            redraw();
+            return 1;
+        }
+
+        break;
+    }//switch
+
+    return 0;
+}
+
 
 static bool isDisplayChar(unsigned char byte)
 {
@@ -100,6 +153,9 @@ void BlaHexDisplay::drawHex(int xx, int yy)
     else
         fl_color(FL_BLACK);
 
+    if(selectedByteAt(xx, yy))
+        fl_color(FL_YELLOW);
+
     fl_draw(buff, xpos, ypos);
 }
 
@@ -134,6 +190,12 @@ bool BlaHexDisplay::gotByteAt(int xx, int yy) const
 {
     const int idx = (yy + m_startingline) * m_bytesperline + xx;
     return idx < m_file->filesize();
+}
+
+bool BlaHexDisplay::selectedByteAt(int xx, int yy) const
+{
+    const int idx = (yy + m_startingline) * m_bytesperline + xx;
+    return idx == m_selectedbyte;
 }
 
 //helper to calculate amount of hex digit to display any byte's position in a file
@@ -190,6 +252,17 @@ void BlaHexDisplay::recalculateMetrics()
     m_line2 = m_line1 + m_padding + bla_text_width(buff) + m_padding;
 
     //printf("(addr, bytes, padding) = (%d, %d, %d)\n", m_addresschars, m_bytesperline, m_padding);
+
+    m_linesdisplayed = h() / fl_height();
+
+
+    m_hexareabox.x = m_line1 + m_padding;
+    m_hexareabox.y = 0;
+    m_hexareabox.w = bla_text_width(buff);
+    m_hexareabox.h = m_linesdisplayed * fl_height();
+
+    m_onecharwidth = bla_text_width("A");
+    m_onecharheight = bla_text_height("A");
 }
 
 int BlaHexDisplay::getDisplayLineCount() const
