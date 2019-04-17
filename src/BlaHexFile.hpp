@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include "BlaNonCopyable.hpp"
 
 namespace bla {
 typedef unsigned long long i64;
@@ -7,7 +8,7 @@ typedef unsigned long long i64;
 
 static_assert(sizeof(bla::i64) == 8, "i64 is not 8 bytes");
 
-class BlaHexFile
+class BlaHexFile : BlaNonCopyable
 {
 public:
     bool open(const char * fname);
