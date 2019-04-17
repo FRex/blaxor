@@ -139,10 +139,10 @@ void BlaHexDisplay::drawAddr(int yy)
 
     const int xpos = x();
     const int ypos = y() + fl_height() - fl_descent() + yy * fl_height();
-    const int bytestart = byteIndexAt(0, yy);
+    const bla::s64 bytestart = byteIndexAt(0, yy);
 
     char buff[100];
-    sprintf(buff, "%0*X", m_addresschars, bytestart);
+    sprintf(buff, "%0*llX", m_addresschars, bytestart);
 
     fl_color(FL_BLACK);
     fl_draw(buff, xpos, ypos);
@@ -197,9 +197,9 @@ void BlaHexDisplay::drawChar(int xx, int yy)
     fl_draw(buff, xpos, ypos);
 }
 
-int BlaHexDisplay::byteIndexAt(int xx, int yy) const
+bla::s64 BlaHexDisplay::byteIndexAt(int xx, int yy) const
 {
-    return (yy + m_startingline) * m_bytesperline + xx;
+    return (yy + m_firstdisplayedline) * m_bytesperline + xx;
 }
 
 unsigned char BlaHexDisplay::getByteAt(int xx, int yy) const
@@ -219,7 +219,7 @@ bool BlaHexDisplay::selectedByteAt(int xx, int yy) const
 
 void BlaHexDisplay::attemptSelectionMove(int event)
 {
-    int newselection = m_selectedbyte;
+    bla::s64 newselection = m_selectedbyte;
 
     if(event == FL_Up)
     {
@@ -271,20 +271,20 @@ void BlaHexDisplay::attemptSelectionMove(int event)
 
     if(newselection != m_selectedbyte)
     {
-        const int oldline = m_selectedbyte / m_bytesperline;
+        const bla::s64 oldline = m_selectedbyte / m_bytesperline;
         m_selectedbyte = newselection;
         redraw();
         if(m_linescrollbar)
         {
-            const int newline = m_selectedbyte / m_bytesperline;
+            const bla::s64 newline = m_selectedbyte / m_bytesperline;
 
-            if(newline < m_startingline)
+            if(newline < m_firstdisplayedline)
             {
                 m_linescrollbar->value(newline);
                 m_linescrollbar->do_callback();
             }
 
-            if(newline >= m_startingline + m_linesdisplayed)
+            if(newline >= m_firstdisplayedline + m_linesdisplayed)
             {
                 m_linescrollbar->value(newline - m_linesdisplayed + 1);
                 m_linescrollbar->do_callback();
@@ -366,7 +366,7 @@ void BlaHexDisplay::recalculateMetrics()
 
 }
 
-int BlaHexDisplay::getDisplayLineCount() const
+bla::s64 BlaHexDisplay::getDisplayLineCount() const
 {
     if(!m_file)
         return 1;
@@ -378,7 +378,7 @@ void BlaHexDisplay::setLineScrollbar(Fl_Scrollbar * scrollbar)
 {
     m_linescrollbar = scrollbar;
 
-    const int totallines = getDisplayLineCount();
+    const bla::s64 totallines = getDisplayLineCount();
     if(totallines <= m_linesdisplayed)
     {
         m_linescrollbar->bounds(0, 0);
@@ -386,11 +386,16 @@ void BlaHexDisplay::setLineScrollbar(Fl_Scrollbar * scrollbar)
     }
     else
     {
-        m_linescrollbar->bounds(0, totallines - m_linesdisplayed);
+        m_linescrollbar->bounds(0, static_cast<double>(totallines - m_linesdisplayed));
         const double r = static_cast<double>(m_linesdisplayed) / static_cast<double>(totallines);
         m_linescrollbar->slider_size(r);
         m_linescrollbar->linesize(1);
     }
+}
+
+void BlaHexDisplay::setFirstDisplayedLine(bla::s64 line)
+{
+    m_firstdisplayedline = line;
 }
 
 void BlaHexDisplay::setFile(BlaHexFile * file)

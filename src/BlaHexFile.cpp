@@ -1,29 +1,67 @@
+#define _CRT_SECURE_NO_WARNINGS
 #include "BlaHexFile.hpp"
 #include <fstream>
 
+BlaHexFile::~BlaHexFile()
+{
+    close();
+}
+
 bool BlaHexFile::open(const char * fname)
 {
-    std::ifstream file(fname, std::ios::binary);
-    m_buff.clear();
-    if(!file.is_open())
+    close();
+    m_file = fopen(fname, "rb");
+    if(!m_file)
         return false;
 
-    m_buff.resize(1024 * 1024);
-    file.read(reinterpret_cast<char*>(m_buff.data()), m_buff.size());
-    const bla::s64 readcount = file.gcount();
-    m_buff.resize(readcount);
+    if(0 == _fseeki64(m_file, 0, SEEK_END))
+    {
+        const bla::s64 s = static_cast<bla::s64>(_ftelli64(m_file));
+        if(s >= 0)
+        {
+            m_filesize = s;
+        }
+        else
+        {
+            close();
+            return false;
+        }
+    }
+    else
+    {
+        close();
+        return false;
+    }
+
     return true;
+}
+
+void BlaHexFile::close()
+{
+    m_filesize = 0;
+    if(m_file)
+        std::fclose(m_file);
 }
 
 bla::s64 BlaHexFile::filesize() const
 {
-    return static_cast<bla::s64>(m_buff.size());
+    return m_filesize;
 }
 
-unsigned char BlaHexFile::getByte(bla::s64 pos) const
+static inline bool goodindex(bla::s64 pos, bla::s64 fsize)
 {
-    if(pos < static_cast<bla::s64>(m_buff.size()))
-        return m_buff[pos];
+    return (pos >= 0) && (pos < fsize);
+}
+
+unsigned char BlaHexFile::getByte(bla::s64 pos)
+{
+    if(!goodindex(pos, m_filesize))
+        return 0xff;
+
+    unsigned char ret;
+    if(0 == _fseeki64(m_file, pos, SEEK_SET))
+        if(1 == fread(&ret, 1, 1, m_file))
+            return ret;
 
     return 0xff;
 }

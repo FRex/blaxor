@@ -1,5 +1,6 @@
 #pragma once
 #include <FL/Fl_Widget.H>
+#include "blatype.hpp"
 
 class BlaHexFile;
 
@@ -20,8 +21,9 @@ public:
     BlaHexDisplay(int x, int y, int w, int h, const char * label = 0x0);
     void setFile(BlaHexFile * file);
     void recalculateMetrics();
-    int getDisplayLineCount() const;
+    bla::s64 getDisplayLineCount() const;
     void setLineScrollbar(Fl_Scrollbar * scrollbar);
+    void setFirstDisplayedLine(bla::s64 line);
 
 private:
     virtual void draw() override;
@@ -31,7 +33,7 @@ private:
     void drawHex(int xx, int yy);
     void drawChar(int xx, int yy);
 
-    int byteIndexAt(int xx, int yy) const;
+    bla::s64 byteIndexAt(int xx, int yy) const;
     unsigned char getByteAt(int xx, int yy) const;
     bool gotByteAt(int xx, int yy) const;
     bool selectedByteAt(int xx, int yy) const;
@@ -44,14 +46,13 @@ private:
     int m_line1 = 10;
     int m_line2 = 20;
     BlaHexFile * m_file = 0x0;
-    int m_selectedbyte = 0;
+    bla::s64 m_selectedbyte = 0;
     BlaIntRect m_hexareabox;
     int m_linesdisplayed = 0;
     int m_onecharwidth = 0;
     int m_onecharheight = 0;
     Fl_Scrollbar * m_linescrollbar = 0x0;
     BlaIntRect m_charareabox;
-
-public: int m_startingline = 0;
+    bla::s64 m_firstdisplayedline = 0;
 
 };

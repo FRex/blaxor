@@ -11,7 +11,8 @@ static void mycallback(Fl_Widget * widget, void * data)
 {
     Fl_Scrollbar * sb = static_cast<Fl_Scrollbar*>(widget);
     BlaHexDisplay * my = static_cast<BlaHexDisplay*>(data);
-    my->m_startingline = sb->value();
+
+    my->setFirstDisplayedLine(sb->value());
     my->redraw();
 }
 
