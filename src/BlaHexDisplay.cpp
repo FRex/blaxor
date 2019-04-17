@@ -294,7 +294,7 @@ void BlaHexDisplay::attemptSelectionMove(int event)
 }
 
 //helper to calculate amount of hex digit to display any byte's position in a file
-static int calcAddrHexNeeded(bla::i64 filesize)
+static int calcAddrHexNeeded(bla::s64 filesize)
 {
     if(filesize <= 0)
         return 1;

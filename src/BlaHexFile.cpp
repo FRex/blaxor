@@ -10,19 +10,19 @@ bool BlaHexFile::open(const char * fname)
 
     m_buff.resize(1024 * 1024);
     file.read(reinterpret_cast<char*>(m_buff.data()), m_buff.size());
-    const bla::i64 readcount = file.gcount();
+    const bla::s64 readcount = file.gcount();
     m_buff.resize(readcount);
     return true;
 }
 
-bla::i64 BlaHexFile::filesize() const
+bla::s64 BlaHexFile::filesize() const
 {
-    return static_cast<bla::i64>(m_buff.size());
+    return static_cast<bla::s64>(m_buff.size());
 }
 
-unsigned char BlaHexFile::getByte(bla::i64 pos) const
+unsigned char BlaHexFile::getByte(bla::s64 pos) const
 {
-    if(pos < static_cast<bla::i64>(m_buff.size()))
+    if(pos < static_cast<bla::s64>(m_buff.size()))
         return m_buff[pos];
 
     return 0xff;
