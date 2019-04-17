@@ -6,7 +6,7 @@
 #include <cstring>
 #include <cstdio>
 #include <FL/fl_draw.H>
-#include <FL/Fl_Scrollbar.H>
+#include <FL/Fl_Slider.H>
 #include "BlaHexFile.hpp"
 #include <algorithm>
 
@@ -374,7 +374,7 @@ bla::s64 BlaHexDisplay::getDisplayLineCount() const
     return (m_file->filesize() + m_bytesperline - 1) / m_bytesperline;
 }
 
-void BlaHexDisplay::setLineScrollbar(Fl_Scrollbar * scrollbar)
+void BlaHexDisplay::setLineScrollbar(Fl_Slider * scrollbar)
 {
     m_linescrollbar = scrollbar;
 
@@ -389,7 +389,7 @@ void BlaHexDisplay::setLineScrollbar(Fl_Scrollbar * scrollbar)
         m_linescrollbar->bounds(0, static_cast<double>(totallines - m_linesdisplayed));
         const double r = static_cast<double>(m_linesdisplayed) / static_cast<double>(totallines);
         m_linescrollbar->slider_size(r);
-        m_linescrollbar->linesize(1);
+        //m_linescrollbar->linesize(1);
     }
 }
 

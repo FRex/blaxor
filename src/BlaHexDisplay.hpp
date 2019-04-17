@@ -13,7 +13,7 @@ public:
     int h = 0;
 };
 
-class Fl_Scrollbar;
+class Fl_Slider;
 
 class BlaHexDisplay : public Fl_Widget
 {
@@ -22,7 +22,7 @@ public:
     void setFile(BlaHexFile * file);
     void recalculateMetrics();
     bla::s64 getDisplayLineCount() const;
-    void setLineScrollbar(Fl_Scrollbar * scrollbar);
+    void setLineScrollbar(Fl_Slider * scrollbar);
     void setFirstDisplayedLine(bla::s64 line);
 
 private:
@@ -51,7 +51,7 @@ private:
     int m_linesdisplayed = 0;
     int m_onecharwidth = 0;
     int m_onecharheight = 0;
-    Fl_Scrollbar * m_linescrollbar = 0x0;
+    Fl_Slider * m_linescrollbar = 0x0;
     BlaIntRect m_charareabox;
     bla::s64 m_firstdisplayedline = 0;
 
