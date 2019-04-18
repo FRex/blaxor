@@ -113,7 +113,7 @@ int BlaHexDisplay::handle(int event)
         case FL_Page_Down:
         case FL_Home:
         case FL_End:
-            attemptSelectionMove(Fl::event_key());
+            attemptSelectionMove(Fl::event_key(), Fl::event_state(FL_CTRL) != 0);
             return 1;
         }//switch event key
         break;
@@ -221,7 +221,7 @@ bool BlaHexDisplay::selectedByteAt(int xx, int yy) const
     return byteIndexAt(xx, yy) == m_selectedbyte;
 }
 
-void BlaHexDisplay::attemptSelectionMove(int event)
+void BlaHexDisplay::attemptSelectionMove(int event, bool ctrldown)
 {
     bla::s64 newselection = m_selectedbyte;
 
@@ -275,14 +275,22 @@ void BlaHexDisplay::attemptSelectionMove(int event)
 
     if(event == FL_Home)
     {
-        newselection = newselection - (newselection % m_bytesperline);
+        if(ctrldown)
+            newselection = 0;
+        else
+            newselection = newselection - (newselection % m_bytesperline);
     }
 
-    if(event == FL_End)
+    if(event == FL_End && !ctrldown)
     {
         newselection = newselection - (newselection % m_bytesperline) + (m_bytesperline - 1);
         while(newselection > 0 && newselection >= m_file->filesize())
             --newselection;
+    }
+
+    if(event == FL_End && ctrldown)
+    {
+        newselection =  std::max<bla::s64>(0, m_file->filesize() - 1);
     }
 
     if(newselection != m_selectedbyte)
