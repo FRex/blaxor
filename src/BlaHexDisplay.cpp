@@ -64,7 +64,10 @@ int BlaHexDisplay::handle(int event)
     switch(event)
     {
     case FL_PUSH:
+        if(!Fl::event_inside(this))
+            return 0;
 
+        take_focus(); //always take focus if we get mouse clicked on
         if(Fl::event_inside(x() + m_hexareabox.x, y() + m_hexareabox.y, m_hexareabox.w, m_hexareabox.h))
         {
             //TODO: move this check to a function, and move index calc to a function
@@ -92,8 +95,7 @@ int BlaHexDisplay::handle(int event)
             redraw();
             return 1;
         }
-
-        break;
+        return 1; //always consume mouse push done into this widget
     case FL_FOCUS:
         printf("FL_FOCUS\n");
         return 1;
