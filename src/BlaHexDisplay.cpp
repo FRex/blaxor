@@ -111,6 +111,8 @@ int BlaHexDisplay::handle(int event)
         case FL_Right:
         case FL_Page_Up:
         case FL_Page_Down:
+        case FL_Home:
+        case FL_End:
             attemptSelectionMove(Fl::event_key());
             return 1;
         }//switch event key
@@ -269,6 +271,18 @@ void BlaHexDisplay::attemptSelectionMove(int event)
                 break;
             }
         }//for i
+    }
+
+    if(event == FL_Home)
+    {
+        newselection = newselection - (newselection % m_bytesperline);
+    }
+
+    if(event == FL_End)
+    {
+        newselection = newselection - (newselection % m_bytesperline) + (m_bytesperline - 1);
+        while(newselection > 0 && newselection >= m_file->filesize())
+            --newselection;
     }
 
     if(newselection != m_selectedbyte)
