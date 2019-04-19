@@ -24,6 +24,7 @@ public:
     bla::s64 getDisplayLineCount() const;
     void setLineScrollbar(Fl_Slider * scrollbar);
     void setFirstDisplayedLine(bla::s64 line);
+    void ensureSelectionInView();
 
 private:
     virtual void draw() override;

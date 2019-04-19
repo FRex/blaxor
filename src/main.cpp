@@ -13,6 +13,7 @@ static void mycallback(Fl_Widget * widget, void * data)
     BlaHexDisplay * my = static_cast<BlaHexDisplay*>(data);
 
     my->setFirstDisplayedLine(sb->value());
+    my->ensureSelectionInView();
     my->redraw();
 }
 

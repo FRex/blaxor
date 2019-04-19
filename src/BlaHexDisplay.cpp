@@ -312,13 +312,13 @@ void BlaHexDisplay::attemptSelectionMove(int event, bool ctrldown)
 
             if(newline < m_firstdisplayedline)
             {
-                m_linescrollbar->value(newline);
+                m_linescrollbar->value(static_cast<double>(newline));
                 m_linescrollbar->do_callback();
             }
 
             if(newline >= m_firstdisplayedline + m_linesdisplayed)
             {
-                m_linescrollbar->value(newline - m_linesdisplayed + 1);
+                m_linescrollbar->value(static_cast<double>(newline - m_linesdisplayed + 1));
                 m_linescrollbar->do_callback();
             }
         }//if m_linescrollbar
@@ -428,6 +428,17 @@ void BlaHexDisplay::setLineScrollbar(Fl_Slider * scrollbar)
 void BlaHexDisplay::setFirstDisplayedLine(bla::s64 line)
 {
     m_firstdisplayedline = line;
+}
+
+void BlaHexDisplay::ensureSelectionInView()
+{
+    const bla::s64 firstbyte = byteIndexAt(0, 0);
+    const bla::s64 bytecount = m_linesdisplayed * m_bytesperline;
+    if(m_selectedbyte < firstbyte)
+        m_selectedbyte = firstbyte;
+
+    if(m_selectedbyte >= (firstbyte + bytecount))
+        m_selectedbyte = firstbyte;
 }
 
 void BlaHexDisplay::setFile(BlaHexFile * file)
