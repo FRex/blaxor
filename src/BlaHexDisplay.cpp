@@ -122,6 +122,14 @@ int BlaHexDisplay::handle(int event)
     return 0;
 }
 
+void BlaHexDisplay::resize(int nx, int ny, int nw, int nh)
+{
+    //call Fl_Widget::resize first to set the new xywh values for
+    //recalculateMetrics to use via x(), y(), w(), h() getters
+    Fl_Widget::resize(nx, ny, nw, nh);
+    recalculateMetrics();
+}
+
 static bool isDisplayChar(unsigned char byte)
 {
     //printable ascii range is [0x20, 0x7f)

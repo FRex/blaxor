@@ -30,6 +30,7 @@ int main(int argc, char ** argv)
     Fl_Double_Window win(w, h, argv[1]);
     Fl_Slider * sb = new Fl_Slider(w - scrollballw, 0, scrollballw, h);
     auto my = new BlaHexDisplay(0, 0, w - scrollballw, h);
+    win.resizable(my);
     my->take_focus();
     BlaHexFile file;
     file.open(argv[1]);
