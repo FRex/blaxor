@@ -117,6 +117,17 @@ int BlaHexDisplay::handle(int event)
             return 1;
         }//switch event key
         break;
+    case FL_MOUSEWHEEL:
+        if(m_linescrollbar)
+        {
+            const int dy = Fl::event_dy();
+            const int linesperwheelsegment = 10;
+            const double newval = m_linescrollbar->value() + dy * linesperwheelsegment;
+            const double clamped = m_linescrollbar->clamp(newval);
+            m_linescrollbar->value(clamped);
+            m_linescrollbar->do_callback();
+        }
+        return 1;
     }//switch
 
     return 0;
