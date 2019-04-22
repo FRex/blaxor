@@ -39,6 +39,7 @@ bool BlaHexFile::open(const char * fname)
 void BlaHexFile::close()
 {
     m_filesize = 0;
+    m_readcount = 0;
     if(m_file)
         std::fclose(m_file);
 }
@@ -55,6 +56,7 @@ static inline bool goodindex(bla::s64 pos, bla::s64 fsize)
 
 unsigned char BlaHexFile::getByte(bla::s64 pos)
 {
+    ++m_readcount;
     if(!goodindex(pos, m_filesize))
         return 0xff;
 
@@ -64,4 +66,9 @@ unsigned char BlaHexFile::getByte(bla::s64 pos)
             return ret;
 
     return 0xff;
+}
+
+bla::s64 BlaHexFile::readcount() const
+{
+    return m_readcount;
 }
