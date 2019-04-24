@@ -25,11 +25,11 @@ public:
     void setLineScrollbar(Fl_Slider * scrollbar);
     void setFirstDisplayedLine(bla::s64 line);
     void ensureSelectionInView();
+    virtual void resize(int nx, int ny, int nw, int nh) override;
 
 private:
     virtual void draw() override;
     virtual int handle(int event) override;
-    virtual void resize(int nx, int ny, int nw, int nh) override;
 
     void drawAddr(int yy);
     void drawHex(int xx, int yy);

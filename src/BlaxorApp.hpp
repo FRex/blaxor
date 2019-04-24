@@ -14,8 +14,10 @@ public:
     ~BlaxorApp();
     bool openFile(const char * fname);
     void setupGui();
+    void setBoxHeight(int newh);
 
 private:
+
     BlaHexFile m_file;
     std::string m_wintitle;
     Fl_Double_Window * m_win = 0x0;

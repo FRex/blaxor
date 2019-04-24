@@ -70,3 +70,19 @@ void BlaxorApp::setupGui()
     m_slider->callback(mycallback, m_display);
     m_win->show(); //win->show(argc, argv);
 }
+
+void BlaxorApp::setBoxHeight(int newh)
+{
+    const int w = m_win->w();
+    const int h = m_win->h();
+    const int scrollbarw = 20;
+    const int boxh = newh;
+
+    m_box->size(w, boxh);
+    m_display->resize(0, boxh, w - scrollbarw, h - boxh);
+    m_slider->resize(w - scrollbarw, boxh, scrollbarw, h - boxh);
+
+    m_box->redraw();
+    m_display->redraw();
+    m_slider->redraw();
+}
