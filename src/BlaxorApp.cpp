@@ -42,24 +42,28 @@ static void update_label_cb(Fl_Widget * widget, void * data)
     widget->copy_label(buff);
 }
 
+const double kBoxLabelUpdateTimeout = 1.0;
+const int kScrollbarWidth = 20;
+const int kBoxInitialHeight = 50;
+
 static void update_label_to(void * data)
 {
     Fl_Box * box = static_cast<Fl_Box*>(data);
     box->do_callback();
-    Fl::repeat_timeout(1.0, &update_label_to, data);
+    Fl::repeat_timeout(kBoxLabelUpdateTimeout, &update_label_to, data);
 }
 
 void BlaxorApp::setupGui()
 {
     const int w = 900;
     const int h = 600;
-    const int scrollbarw = 20;
-    const int boxh = 50;
+    const int scrollbarw = kScrollbarWidth;
+    const int boxh = kBoxInitialHeight;
     m_win = new Fl_Double_Window(w, h, m_wintitle.c_str());
     m_box = new Fl_Box(0, 0, w, boxh);
     m_box->callback(&update_label_cb, &m_file);
     m_box->do_callback();
-    Fl::add_timeout(1.0, &update_label_to, m_box);
+    Fl::add_timeout(kBoxLabelUpdateTimeout, &update_label_to, m_box);
     m_slider = new Fl_Slider(w - scrollbarw, boxh, scrollbarw, h - boxh);
     m_display = new BlaHexDisplay(0, boxh, w - scrollbarw, h - boxh);
     m_win->resizable(m_display);
@@ -75,7 +79,7 @@ void BlaxorApp::setBoxHeight(int newh)
 {
     const int w = m_win->w();
     const int h = m_win->h();
-    const int scrollbarw = 20;
+    const int scrollbarw = kScrollbarWidth;
     const int boxh = newh;
 
     m_box->size(w, boxh);
