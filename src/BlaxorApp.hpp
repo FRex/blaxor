@@ -19,7 +19,7 @@ public:
 private:
 
     BlaHexFile m_file;
-    std::string m_wintitle;
+    std::string m_wintitle = "nofile";
     Fl_Double_Window * m_win = 0x0;
     Fl_Box * m_box = 0x0;
     BlaHexDisplay * m_display = 0x0;

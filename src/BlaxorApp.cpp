@@ -61,6 +61,7 @@ void BlaxorApp::setupGui()
     const int boxh = kBoxInitialHeight;
     m_win = new Fl_Double_Window(w, h, m_wintitle.c_str());
     m_box = new Fl_Box(0, 0, w, boxh);
+    m_box->box(FL_BORDER_BOX);
     m_box->callback(&update_label_cb, &m_file);
     m_box->do_callback();
     Fl::add_timeout(kBoxLabelUpdateTimeout, &update_label_to, m_box);
