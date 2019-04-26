@@ -30,8 +30,6 @@ static std::vector<FileDropHandling>::iterator findHandlingForWindow(HWND win)
 
 }//unnamed namespace
 
-LONG_PTR originalsfmlcallback = 0x0;
-
 LRESULT CALLBACK mycallback(HWND handle, UINT message, WPARAM wParam, LPARAM lParam)
 {
     const auto h = findHandlingForWindow(handle);
