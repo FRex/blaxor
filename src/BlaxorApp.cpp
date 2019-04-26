@@ -8,6 +8,7 @@
 #include "BlaHexDisplay.hpp"
 #include "BlaHexFile.hpp"
 #include "prettyPrintFilesize.hpp"
+#include "osSpecific.hpp"
 
 static void mycallback(Fl_Widget * widget, void * data)
 {
@@ -30,6 +31,19 @@ bool BlaxorApp::openFile(const char * fname)
         return false;
 
     m_wintitle = fname + std::string(": ") + prettyPrintFilesize(m_file.filesize());
+    m_win->label(m_wintitle.c_str());
+    redrawAll();
+    return true;
+}
+
+bool BlaxorApp::openFile(const wchar_t * fname)
+{
+    if(!m_file.open(fname))
+        return false;
+
+    m_wintitle = utf16ToUtf8(fname) + std::string(": ") + prettyPrintFilesize(m_file.filesize());
+    m_win->label(m_wintitle.c_str());
+    redrawAll();
     return true;
 }
 
@@ -53,6 +67,12 @@ static void update_label_to(void * data)
     Fl::repeat_timeout(kBoxLabelUpdateTimeout, &update_label_to, data);
 }
 
+static void myfiledropcb(void * udata, const wchar_t * fname)
+{
+    BlaxorApp * app = static_cast<BlaxorApp*>(udata);
+    app->openFile(fname);
+}
+
 void BlaxorApp::setupGui()
 {
     const int w = 900;
@@ -74,6 +94,7 @@ void BlaxorApp::setupGui()
     m_display->setLineScrollbar(m_slider);
     m_slider->callback(mycallback, m_display);
     m_win->show(); //win->show(argc, argv);
+    enableFileDropOnWindow(m_win, myfiledropcb, this);
 }
 
 void BlaxorApp::setBoxHeight(int newh)
@@ -87,6 +108,11 @@ void BlaxorApp::setBoxHeight(int newh)
     m_display->resize(0, boxh, w - scrollbarw, h - boxh);
     m_slider->resize(w - scrollbarw, boxh, scrollbarw, h - boxh);
 
+    redrawAll();
+}
+
+void BlaxorApp::redrawAll()
+{
     m_box->redraw();
     m_display->redraw();
     m_slider->redraw();

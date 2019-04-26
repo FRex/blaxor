@@ -13,10 +13,12 @@ class BlaxorApp : BlaNonCopyable
 public:
     ~BlaxorApp();
     bool openFile(const char * fname);
+    bool openFile(const wchar_t * fname);
     void setupGui();
     void setBoxHeight(int newh);
 
 private:
+    void redrawAll();
 
     BlaHexFile m_file;
     std::string m_wintitle = "nofile";

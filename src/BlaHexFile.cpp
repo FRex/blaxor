@@ -13,26 +13,17 @@ bool BlaHexFile::open(const char * fname)
     if(!m_file)
         return false;
 
-    if(0 == _fseeki64(m_file, 0, SEEK_END))
-    {
-        const bla::s64 s = static_cast<bla::s64>(_ftelli64(m_file));
-        if(s >= 0)
-        {
-            m_filesize = s;
-        }
-        else
-        {
-            close();
-            return false;
-        }
-    }
-    else
-    {
-        close();
-        return false;
-    }
+    return onFileOpen();
+}
 
-    return true;
+bool BlaHexFile::open(const wchar_t * fname)
+{
+    close();
+    m_file = _wfopen(fname, L"rb");
+    if(!m_file)
+        return false;
+
+    return onFileOpen();
 }
 
 void BlaHexFile::close()
@@ -70,4 +61,28 @@ unsigned char BlaHexFile::getByte(bla::s64 pos)
 bla::s64 BlaHexFile::readcount() const
 {
     return m_readcount;
+}
+
+bool BlaHexFile::onFileOpen()
+{
+    if(0 == _fseeki64(m_file, 0, SEEK_END))
+    {
+        const bla::s64 s = static_cast<bla::s64>(_ftelli64(m_file));
+        if(s >= 0)
+        {
+            m_filesize = s;
+        }
+        else
+        {
+            close();
+            return false;
+        }
+    }
+    else
+    {
+        close();
+        return false;
+    }
+
+    return true;
 }
