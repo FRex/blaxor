@@ -56,6 +56,9 @@ LRESULT CALLBACK mycallback(HWND handle, UINT message, WPARAM wParam, LPARAM lPa
 
 void enableFileDropOnWindow(Fl_Window * win, FileDropCallback callback, void * udata)
 {
+    if(!callback || !win)
+        return;
+
     HWND handle = fl_xid(win);
     DragAcceptFiles(handle, TRUE);
 
