@@ -31,7 +31,9 @@ bool BlaxorApp::openFile(const char * fname)
         return false;
 
     m_wintitle = fname + std::string(": ") + prettyPrintFilesize(m_file.filesize());
-    m_win->label(m_wintitle.c_str());
+    if(m_win)
+        m_win->label(m_wintitle.c_str());
+
     redrawAll();
     return true;
 }
@@ -42,7 +44,9 @@ bool BlaxorApp::openFile(const wchar_t * fname)
         return false;
 
     m_wintitle = utf16ToUtf8(fname) + std::string(": ") + prettyPrintFilesize(m_file.filesize());
-    m_win->label(m_wintitle.c_str());
+    if(m_win)
+        m_win->label(m_wintitle.c_str());
+
     redrawAll();
     return true;
 }
@@ -113,7 +117,8 @@ void BlaxorApp::setBoxHeight(int newh)
 
 void BlaxorApp::redrawAll()
 {
-    m_box->redraw();
-    m_display->redraw();
-    m_slider->redraw();
+    Fl_Widget * ws[] = { m_box, m_display, m_slider };
+    for(auto w : ws)
+        if(w)
+            w->redraw();
 }
