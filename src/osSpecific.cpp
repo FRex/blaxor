@@ -74,6 +74,15 @@ void enableFileDropOnWindow(Fl_Window * win, FileDropCallback callback, void * u
     callbacks.push_back(han);
 }
 
+void maximizeWindow(Fl_Window * win)
+{
+    if(!win)
+        return;
+
+    HWND handle = fl_xid(win);
+    ShowWindow(handle, SW_MAXIMIZE);
+}
+
 std::string utf16ToUtf8(const wchar_t * fname)
 {
     const size_t utf8len = wcslen(fname) * 3 + 10;
