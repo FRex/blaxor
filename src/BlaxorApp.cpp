@@ -38,6 +38,30 @@ bool BlaxorApp::openFile(const char * fname)
     return true;
 }
 
+static std::vector<bla::s64> findAsciiInFile(BlaHexFile& file, const std::string& ascii)
+{
+    std::vector<bla::s64> ret;
+
+    for(bla::s64 i = 0; i < file.filesize(); ++i)
+    {
+        bool match = true;
+        for(int j = 0; j < ascii.size(); ++j)
+        {
+            if((i + j) >= file.filesize())
+                return ret;
+
+            if(ascii[j] != static_cast<int>(file.getByte(i + j)))
+                match = false;
+
+        }//for j
+
+        if(match)
+            ret.push_back(i);
+    }//for i
+
+    return ret;
+}
+
 bool BlaxorApp::openFile(const wchar_t * fname)
 {
     if(!m_file.open(fname))
