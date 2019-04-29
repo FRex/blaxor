@@ -11,7 +11,7 @@
 #include "prettyPrintFilesize.hpp"
 #include "osSpecific.hpp"
 
-const int kMaxSearchableFileSize = 1024 * 1024 * 60;
+const bla::s64 kMaxSearchableFileSize = 1024 * 1024 * 60;
 
 static void mycallback(Fl_Widget * widget, void * data)
 {
@@ -37,6 +37,7 @@ bool BlaxorApp::openFile(const char * fname)
     if(m_win)
         m_win->label(m_wintitle.c_str());
 
+    hideInputIfTooBigFile();
     redrawAll();
     return true;
 }
@@ -50,6 +51,7 @@ bool BlaxorApp::openFile(const wchar_t * fname)
     if(m_win)
         m_win->label(m_wintitle.c_str());
 
+    hideInputIfTooBigFile();
     redrawAll();
     return true;
 }
@@ -111,6 +113,7 @@ void BlaxorApp::setupGui()
     m_display->recalculateMetrics();
     m_display->setLineScrollbar(m_slider);
     m_slider->callback(mycallback, m_display);
+    hideInputIfTooBigFile();
     m_win->show(); //win->show(argc, argv);
     enableFileDropOnWindow(m_win, myfiledropcb, this);
 }
@@ -136,7 +139,7 @@ static bla::s64 findAsciiInFileNext(BlaHexFile& file, bla::s64 start, const std:
     for(bla::s64 i = start; i < file.filesize(); ++i)
     {
         bool match = true;
-        for(int j = 0; j < ascii.size(); ++j)
+        for(unsigned j = 0; j < ascii.size(); ++j)
         {
             if((i + j) >= file.filesize())
                 return -1;
@@ -156,7 +159,7 @@ static bla::s64 findAsciiInFileNext(BlaHexFile& file, bla::s64 start, const std:
 void BlaxorApp::findNext(const char * text)
 {
     //only do this on small files
-    if(m_file.filesize() > 1024 * 1024 * 10)
+    if(m_file.filesize() > kMaxSearchableFileSize)
         return;
 
     const bla::s64 curi = m_display->getSelectedByte();
@@ -171,8 +174,19 @@ void BlaxorApp::findNext(const char * text)
 
 void BlaxorApp::redrawAll()
 {
-    Fl_Widget * ws[] = { m_box, m_display, m_slider };
+    Fl_Widget * ws[] = { m_box, m_display, m_input, m_slider };
     for(auto w : ws)
         if(w)
             w->redraw();
+}
+
+void BlaxorApp::hideInputIfTooBigFile()
+{
+    if(!m_input)
+        return;
+
+    if(m_file.filesize() > kMaxSearchableFileSize)
+        m_input->hide();
+    else
+        m_input->show();
 }

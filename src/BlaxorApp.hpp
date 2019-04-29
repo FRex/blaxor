@@ -21,6 +21,7 @@ public:
 
 private:
     void redrawAll();
+    void hideInputIfTooBigFile();
 
     BlaHexFile m_file;
     std::string m_wintitle = "nofile";
