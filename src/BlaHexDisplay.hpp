@@ -26,6 +26,8 @@ public:
     void setFirstDisplayedLine(bla::s64 line);
     void ensureSelectionInView();
     virtual void resize(int nx, int ny, int nw, int nh) override;
+    bla::s64 getSelectedByte() const;
+    void setSelectedByte(bla::s64 byteidx);
 
 private:
     virtual void draw() override;

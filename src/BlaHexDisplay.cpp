@@ -97,10 +97,10 @@ int BlaHexDisplay::handle(int event)
         }
         return 1; //always consume mouse push done into this widget
     case FL_FOCUS:
-        printf("FL_FOCUS\n");
+        //printf("FL_FOCUS\n");
         return 1;
     case FL_UNFOCUS:
-        printf("FL_UNFOCUS\n");
+        //printf("FL_UNFOCUS\n");
         return 1;
     case FL_KEYDOWN:
         switch(Fl::event_key())
@@ -139,6 +139,19 @@ void BlaHexDisplay::resize(int nx, int ny, int nw, int nh)
     //recalculateMetrics to use via x(), y(), w(), h() getters
     Fl_Widget::resize(nx, ny, nw, nh);
     recalculateMetrics();
+}
+
+bla::s64 BlaHexDisplay::getSelectedByte() const
+{
+    return m_selectedbyte;
+}
+
+void BlaHexDisplay::setSelectedByte(bla::s64 byteidx)
+{
+    if(byteidx < 0)
+        return;
+
+    m_selectedbyte = byteidx;
 }
 
 static bool isDisplayChar(unsigned char byte)
