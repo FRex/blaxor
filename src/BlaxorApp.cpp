@@ -56,15 +56,6 @@ bool BlaxorApp::openFile(const wchar_t * fname)
     return true;
 }
 
-static void update_label_cb(Fl_Widget * widget, void * data)
-{
-    BlaHexFile * file = static_cast<BlaHexFile*>(data);
-    const bla::s64 rc = file->readcount();
-    char buff[50];
-    sprintf(buff, "total bytes read: %lld", rc);
-    widget->copy_label(buff);
-}
-
 const double kBoxLabelUpdateTimeout = 1.0;
 const int kScrollbarWidth = 20;
 const int kBoxInitialHeight = 50;
@@ -72,8 +63,8 @@ const int kInputInitialHeight = 30;
 
 static void update_label_to(void * data)
 {
-    Fl_Box * box = static_cast<Fl_Box*>(data);
-    box->do_callback();
+    BlaxorApp * app = static_cast<BlaxorApp*>(data);
+    app->refreshBox();
     Fl::repeat_timeout(kBoxLabelUpdateTimeout, &update_label_to, data);
 }
 
@@ -100,9 +91,7 @@ void BlaxorApp::setupGui()
     m_win = new Fl_Double_Window(w, h, m_wintitle.c_str());
     m_box = new Fl_Box(0, 0, w, boxh);
     m_box->box(FL_BORDER_BOX);
-    m_box->callback(&update_label_cb, &m_file);
-    m_box->do_callback();
-    Fl::add_timeout(kBoxLabelUpdateTimeout, &update_label_to, m_box);
+    Fl::add_timeout(kBoxLabelUpdateTimeout, &update_label_to, this);
     m_input = new Fl_Input(0, boxh, w, inputh);
     m_input->callback(&inputcb, this);
     m_slider = new Fl_Slider(w - scrollbarw, boxh + inputh, scrollbarw, h - boxh - inputh);
@@ -116,6 +105,7 @@ void BlaxorApp::setupGui()
     hideInputIfTooBigFile();
     m_win->show(); //win->show(argc, argv);
     enableFileDropOnWindow(m_win, myfiledropcb, this);
+    refreshBox();
 }
 
 void BlaxorApp::setBoxHeight(int newh)
@@ -170,6 +160,70 @@ void BlaxorApp::findNext(const char * text)
         m_display->ensureSelectionInView();
         m_display->redraw();
     }
+}
+
+static unsigned little_u32(void * data)
+{
+    unsigned ret = 0u;
+    const unsigned char * b = (const unsigned char *)data;
+    ret = (ret | b[3]) << 8;
+    ret = (ret | b[2]) << 8;
+    ret = (ret | b[1]) << 8;
+    ret = (ret | b[0]);
+    return ret;
+}
+
+static int little_s32(void * data)
+{
+    return static_cast<int>(little_u32(data));
+}
+
+static unsigned big_u32(void * data)
+{
+    unsigned ret = 0u;
+    const unsigned char * b = (const unsigned char *)data;
+    ret = (ret | b[0]) << 8;
+    ret = (ret | b[1]) << 8;
+    ret = (ret | b[2]) << 8;
+    ret = (ret | b[3]);
+    return ret;
+}
+
+static int big_s32(void * data)
+{
+    return static_cast<int>(big_u32(data));
+}
+
+void BlaxorApp::refreshBox()
+{
+    if(!m_box)
+        return;
+
+    const bla::s64 rc = m_file.readcount();
+    char buff[450]; //move to member vector that is few megs, for total safety
+    sprintf(buff, "total bytes read: %lld\n", rc);
+
+    const bla::s64 fs = m_file.filesize();
+    const bla::s64 selected = m_display->getSelectedByte();
+
+    //handle if selection is out of file too or is that assumed to never happen?
+    unsigned char data[4];
+    data[0] = 0xff;
+    data[1] = 0xff;
+    data[2] = 0xff;
+    data[3] = 0xff;
+    for(int i = 0; i < 4; ++i)
+        if(selected + i < m_file.filesize())
+            data[i] = m_file.getByte(selected + i);
+
+    char * buf2 = buff + strlen(buff);
+    if(selected + 3 < fs)
+    {
+        sprintf(buff + strlen(buff), "u32le = %u, s32le = %d,", little_u32(data), little_s32(data));
+        sprintf(buff + strlen(buff), "u32be = %u, s32be = %d,", big_u32(data), big_s32(data));
+    }
+
+    m_box->copy_label(buff);
 }
 
 void BlaxorApp::redrawAll()
