@@ -194,6 +194,45 @@ static int big_s32(void * data)
     return static_cast<int>(big_u32(data));
 }
 
+static unsigned short little_u16(void * data)
+{
+    unsigned short ret = 0u;
+    const unsigned char * b = (const unsigned char *)data;
+    ret = (ret | b[1]) << 8;
+    ret = (ret | b[0]);
+    return ret;
+}
+
+static short little_s16(void * data)
+{
+    return static_cast<short>(little_u16(data));
+}
+
+static unsigned short big_u16(void * data)
+{
+    unsigned short ret = 0u;
+    const unsigned char * b = (const unsigned char *)data;
+    ret = (ret | b[0]) << 8;
+    ret = (ret | b[1]);
+    return ret;
+}
+
+static short big_s16(void * data)
+{
+    return static_cast<short>(big_u16(data));
+}
+
+static unsigned char endianless_u8(void * data)
+{
+    const unsigned char * b = (const unsigned char *)data;
+    return *b;
+}
+
+static char endianless_s8(void * data)
+{
+    return static_cast<char>(endianless_u8(data));
+}
+
 void BlaxorApp::refreshBox()
 {
     if(!m_box)
@@ -221,7 +260,17 @@ void BlaxorApp::refreshBox()
     {
         sprintf(buff + strlen(buff), "u32le = %u, s32le = %d,", little_u32(data), little_s32(data));
         sprintf(buff + strlen(buff), "u32be = %u, s32be = %d,", big_u32(data), big_s32(data));
+        strcat(buff, "\n");
     }
+
+    if(selected + 1 < fs)
+    {
+        sprintf(buff + strlen(buff), "u16le = %u, s16le = %d,", little_u16(data), little_s16(data));
+        sprintf(buff + strlen(buff), "u16be = %u, s16be = %d,", big_u16(data), big_s16(data));
+    }
+
+    sprintf(buff + strlen(buff), "u8 = %u, s8 = %d,", endianless_u8(data), endianless_s8(data));
+    strcat(buff, "\n");
 
     m_box->copy_label(buff);
 }
