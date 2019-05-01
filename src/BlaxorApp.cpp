@@ -163,17 +163,50 @@ void BlaxorApp::findNext(const char * text)
     }
 }
 
+static bool isDisplayChar(unsigned char byte)
+{
+    //printable ascii range is [0x20, 0x7f)
+    return byte >= 0x20 && byte < 0x7f;
+}
+
 void BlaxorApp::refreshBox()
 {
     if(!m_box)
         return;
 
     const bla::s64 rc = m_file.readcount();
-    char buff[450]; //move to member vector that is few megs, for total safety
-    sprintf(buff, "total bytes read: %lld\n", rc);
+    char buff[900]; //move to member vector that is few megs, for total safety
+
+    sprintf(buff, "total bytes read: %lld, ", rc);
 
     const bla::s64 fs = m_file.filesize();
     const bla::s64 selected = m_display->getSelectedByte();
+
+    std::vector<char> asciihere;
+    const int maxchars = 100;
+    int alen = 0;
+    bool gotmore = false;
+    for(int i = 0; i < (maxchars + 1); ++i)
+    {
+        if(selected + i >= fs)
+            break;
+
+        const unsigned char c = m_file.getByte(selected + i);
+        if(!isDisplayChar(c))
+            break;
+
+        if(i == maxchars)
+        {
+            gotmore = true;
+            break;
+        }
+
+        ++alen;
+        asciihere.push_back(static_cast<char>(c));
+    }
+
+    asciihere.push_back('\0');
+    sprintf(buff + strlen(buff), "ascii here(%d%s) : %s\n", alen, gotmore?"+":"", asciihere.data());
 
     //handle if selection is out of file too or is that assumed to never happen?
     unsigned char data[4];
