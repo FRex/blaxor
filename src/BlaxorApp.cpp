@@ -10,6 +10,7 @@
 #include "BlaHexFile.hpp"
 #include "prettyPrintFilesize.hpp"
 #include "osSpecific.hpp"
+#include "binaryParse.hpp"
 
 const bla::s64 kMaxSearchableFileSize = 1024 * 1024 * 60;
 
@@ -160,77 +161,6 @@ void BlaxorApp::findNext(const char * text)
         m_display->ensureSelectionInView();
         m_display->redraw();
     }
-}
-
-static unsigned little_u32(void * data)
-{
-    unsigned ret = 0u;
-    const unsigned char * b = (const unsigned char *)data;
-    ret = (ret | b[3]) << 8;
-    ret = (ret | b[2]) << 8;
-    ret = (ret | b[1]) << 8;
-    ret = (ret | b[0]);
-    return ret;
-}
-
-static int little_s32(void * data)
-{
-    return static_cast<int>(little_u32(data));
-}
-
-static unsigned big_u32(void * data)
-{
-    unsigned ret = 0u;
-    const unsigned char * b = (const unsigned char *)data;
-    ret = (ret | b[0]) << 8;
-    ret = (ret | b[1]) << 8;
-    ret = (ret | b[2]) << 8;
-    ret = (ret | b[3]);
-    return ret;
-}
-
-static int big_s32(void * data)
-{
-    return static_cast<int>(big_u32(data));
-}
-
-static unsigned short little_u16(void * data)
-{
-    unsigned short ret = 0u;
-    const unsigned char * b = (const unsigned char *)data;
-    ret = (ret | b[1]) << 8;
-    ret = (ret | b[0]);
-    return ret;
-}
-
-static short little_s16(void * data)
-{
-    return static_cast<short>(little_u16(data));
-}
-
-static unsigned short big_u16(void * data)
-{
-    unsigned short ret = 0u;
-    const unsigned char * b = (const unsigned char *)data;
-    ret = (ret | b[0]) << 8;
-    ret = (ret | b[1]);
-    return ret;
-}
-
-static short big_s16(void * data)
-{
-    return static_cast<short>(big_u16(data));
-}
-
-static unsigned char endianless_u8(void * data)
-{
-    const unsigned char * b = (const unsigned char *)data;
-    return *b;
-}
-
-static char endianless_s8(void * data)
-{
-    return static_cast<char>(endianless_u8(data));
 }
 
 void BlaxorApp::refreshBox()
