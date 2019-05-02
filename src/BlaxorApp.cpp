@@ -169,6 +169,36 @@ static bool isDisplayChar(unsigned char byte)
     return byte >= 0x20 && byte < 0x7f;
 }
 
+static std::string getMaxAsciiAt(BlaHexFile& file, bla::s64 start, int maxchars, bool * gotmore)
+{
+    const bla::s64 fs = file.filesize();
+    if(gotmore)
+        *gotmore = false;
+
+    std::string ret;
+    for(int i = 0; i < (maxchars + 1); ++i)
+    {
+        if(start+ i >= fs)
+            break;
+
+        const unsigned char c = file.getByte(start + i);
+        if(!isDisplayChar(c))
+            break;
+
+        if(i == maxchars)
+        {
+            if(gotmore)
+                *gotmore = true;
+
+            break;
+        }
+
+        ret.push_back(static_cast<char>(c));
+    }
+
+    return ret;
+}
+
 void BlaxorApp::refreshBox()
 {
     if(!m_box)
@@ -182,31 +212,9 @@ void BlaxorApp::refreshBox()
     const bla::s64 fs = m_file.filesize();
     const bla::s64 selected = m_display->getSelectedByte();
 
-    std::vector<char> asciihere;
-    const int maxchars = 100;
-    int alen = 0;
     bool gotmore = false;
-    for(int i = 0; i < (maxchars + 1); ++i)
-    {
-        if(selected + i >= fs)
-            break;
-
-        const unsigned char c = m_file.getByte(selected + i);
-        if(!isDisplayChar(c))
-            break;
-
-        if(i == maxchars)
-        {
-            gotmore = true;
-            break;
-        }
-
-        ++alen;
-        asciihere.push_back(static_cast<char>(c));
-    }
-
-    asciihere.push_back('\0');
-    sprintf(buff + strlen(buff), "ascii here(%d%s) : %s\n", alen, gotmore?"+":"", asciihere.data());
+    const std::string asciihere = getMaxAsciiAt(m_file, selected, 50, &gotmore);
+    sprintf(buff + strlen(buff), "ascii here(%d%s) : %s\n", (int)asciihere.size(), gotmore ? "+" : "", asciihere.c_str());
 
     //handle if selection is out of file too or is that assumed to never happen?
     unsigned char data[4];
