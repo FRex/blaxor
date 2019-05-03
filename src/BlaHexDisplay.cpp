@@ -76,7 +76,7 @@ int BlaHexDisplay::handle(int event)
             const int cx = xx / ((m_hexareabox.w + m_onecharwidth) / m_bytesperline);
             const int cy = yy / ((m_hexareabox.h) / m_linesdisplayed);
             if(gotByteAt(cx, cy))
-                m_selectedbyte = byteIndexAt(cx, cy);
+                setSelectedByte(byteIndexAt(cx, cy));
 
             redraw();
             return 1;
@@ -90,7 +90,7 @@ int BlaHexDisplay::handle(int event)
             const int cx = xx / (m_charareabox.w / m_bytesperline);
             const int cy = yy / (m_charareabox.h / m_linesdisplayed);
             if(gotByteAt(cx, cy))
-                m_selectedbyte = byteIndexAt(cx, cy);
+                setSelectedByte(byteIndexAt(cx, cy));
 
             redraw();
             return 1;
@@ -151,7 +151,17 @@ void BlaHexDisplay::setSelectedByte(bla::s64 byteidx)
     if(byteidx < 0)
         return;
 
+    const bla::s64 old = m_selectedbyte;
     m_selectedbyte = byteidx;
+
+    if(old != byteidx && m_selectionchangecb)
+        m_selectionchangecb(this, m_selectionchangeud);
+}
+
+void BlaHexDisplay::setSelectionChangeCallback(Fl_Callback * callback, void * udata)
+{
+    m_selectionchangecb = callback;
+    m_selectionchangeud = udata;
 }
 
 static bool isDisplayChar(unsigned char byte)
@@ -328,7 +338,7 @@ void BlaHexDisplay::attemptSelectionMove(int event, bool ctrldown)
     if(newselection != m_selectedbyte)
     {
         const bla::s64 oldline = m_selectedbyte / m_bytesperline;
-        m_selectedbyte = newselection;
+        setSelectedByte(newselection);
         redraw();
         if(m_linescrollbar)
         {
@@ -459,10 +469,10 @@ void BlaHexDisplay::ensureSelectionInView()
     const bla::s64 firstbyte = byteIndexAt(0, 0);
     const bla::s64 bytecount = m_linesdisplayed * m_bytesperline;
     if(m_selectedbyte < firstbyte)
-        m_selectedbyte = firstbyte;
+        setSelectedByte(firstbyte);
 
     if(m_selectedbyte >= (firstbyte + bytecount))
-        m_selectedbyte = firstbyte;
+        setSelectedByte(firstbyte);
 }
 
 void BlaHexDisplay::setFile(BlaHexFile * file)

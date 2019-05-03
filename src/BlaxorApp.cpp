@@ -82,6 +82,13 @@ static void inputcb(Fl_Widget * w, void * udata)
     app->findNext(input->value());
 }
 
+static void update_label_cb(Fl_Widget * w, void * udata)
+{
+    (void)w;
+    BlaxorApp * app = static_cast<BlaxorApp*>(udata);
+    app->refreshBox();
+}
+
 void BlaxorApp::setupGui()
 {
     const int w = 900;
@@ -97,6 +104,7 @@ void BlaxorApp::setupGui()
     m_input->callback(&inputcb, this);
     m_slider = new Fl_Slider(w - scrollbarw, boxh + inputh, scrollbarw, h - boxh - inputh);
     m_display = new BlaHexDisplay(0, boxh + inputh, w - scrollbarw, h - boxh - inputh);
+    m_display->setSelectionChangeCallback(&update_label_cb, this);
     m_win->resizable(m_display);
     m_display->take_focus();
     m_display->setFile(&m_file);

@@ -28,6 +28,7 @@ public:
     virtual void resize(int nx, int ny, int nw, int nh) override;
     bla::s64 getSelectedByte() const;
     void setSelectedByte(bla::s64 byteidx);
+    void setSelectionChangeCallback(Fl_Callback * callback, void * udata);
 
 private:
     virtual void draw() override;
@@ -58,5 +59,6 @@ private:
     Fl_Slider * m_linescrollbar = 0x0;
     BlaIntRect m_charareabox;
     bla::s64 m_firstdisplayedline = 0;
-
+    Fl_Callback * m_selectionchangecb = 0x0;
+    void * m_selectionchangeud = 0x0;
 };
