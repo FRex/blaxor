@@ -207,6 +207,14 @@ static std::string getMaxAsciiAt(BlaHexFile& file, bla::s64 start, int maxchars,
     return ret;
 }
 
+static void byteToBinaryString(bla::byte b, char * out)
+{
+    for(int i = 7; i >= 0; --i)
+        out[7 - i] = ((1 << i) & b) ? '1' : '0';
+
+    out[8] = '\0';
+}
+
 void BlaxorApp::refreshBox()
 {
     if(!m_box)
@@ -249,6 +257,8 @@ void BlaxorApp::refreshBox()
     }
 
     sprintf(buff + strlen(buff), "u8 = %u, s8 = %d,", endianless_u8(data), endianless_s8(data));
+    sprintf(buff + strlen(buff), "binary = ");
+    byteToBinaryString(data[0], buff + strlen(buff));
     strcat(buff, "\n");
 
     m_box->copy_label(buff);

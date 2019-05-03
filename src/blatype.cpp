@@ -17,3 +17,4 @@ BLA_SIG(bla::s8, 1);
 BLA_UNS(bla::u32, 4);
 BLA_UNS(bla::u16, 2);
 BLA_UNS(bla::u8, 1);
+BLA_UNS(bla::byte, 1);
