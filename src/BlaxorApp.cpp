@@ -217,7 +217,7 @@ static void byteToBinaryString(bla::byte b, char * out)
 
 void BlaxorApp::refreshBox()
 {
-    if(!m_box)
+    if(!m_box || m_file.filesize() == 0)
         return;
 
     const bla::s64 rc = m_file.readcount();
