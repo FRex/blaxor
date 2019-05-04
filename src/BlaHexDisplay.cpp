@@ -11,7 +11,6 @@
 #include <algorithm>
 
 const int kHexFontFace = FL_SCREEN;
-const int kHexFontSize = 16;
 
 static int bla_text_width(const char * str)
 {
@@ -41,7 +40,7 @@ void BlaHexDisplay::draw()
     draw_box();
     //TODO: some check here that widget is big enough to work
     fl_color(FL_BLACK);
-    fl_font(kHexFontFace, kHexFontSize);
+    fl_font(kHexFontFace, m_fontsize);
     const int ymax = fl_height() * m_linesdisplayed;
     fl_yxline(x() + m_line1, y(), y() + ymax);
     fl_yxline(x() + m_line2, y(), y() + ymax);
@@ -116,6 +115,24 @@ int BlaHexDisplay::handle(int event)
             attemptSelectionMove(Fl::event_key(), Fl::event_state(FL_CTRL) != 0);
             return 1;
         }//switch event key
+
+        if(0 == std::strcmp("+", Fl::event_text()))
+        {
+            ++m_fontsize;
+            printf("fontsize = %d\n", m_fontsize);
+            recalculateMetrics();
+            redraw();
+            return 1;
+        }
+
+        if(0 == std::strcmp("-", Fl::event_text()))
+        {
+            --m_fontsize;
+            printf("fontsize = %d\n", m_fontsize);
+            recalculateMetrics();
+            redraw();
+            return 1;
+        }
         break;
     case FL_MOUSEWHEEL:
         if(m_linescrollbar)
@@ -382,7 +399,7 @@ void BlaHexDisplay::recalculateMetrics()
     char buff[400];
     std::memset(buff, 'A', 400);
     buff[m_addresschars] = '\0';
-    fl_font(kHexFontFace, kHexFontSize);
+    fl_font(kHexFontFace, m_fontsize);
     const int addrwidth = bla_text_width(buff);
 
     m_bytesperline = 1;
