@@ -1,10 +1,13 @@
+#include "blaDefines.hpp"
 #include "osSpecific.hpp"
 #include <iostream>
 #include <string>
 #include <vector>
 #include <Windows.h>
-#define WIN32
 #include <FL/x.H>
+
+
+#ifdef BLA_WINDOWS
 
 namespace {
 
@@ -100,3 +103,24 @@ std::wstring utf8ToUtf16(const char * str)
     MultiByteToWideChar(CP_UTF8, 0, str, -1, ret.data(), utf16len);
     return ret.data();
 }
+
+#else //BLA_WINDOWS
+
+void enableFileDropOnWindow(Fl_Window * win, FileDropCallback callback, void * udata)
+{
+    (void)win;
+    (void)callback;
+    (void)udata;
+}
+
+void maximizeWindow(Fl_Window * win)
+{
+    (void)win;
+}
+
+//no non-windows impl to cause linker error if used outside of ifdef BLA_WINDOWS
+//TODO: make portable UTF conversions that aren't using WinAPI at all
+//std::string utf16ToUtf8(const wchar_t * str);
+//std::wstring utf8ToUtf16(const char * str);
+
+#endif //BLA_WINDOWS

@@ -1,6 +1,4 @@
-#define WIN32
-#define _CRT_SECURE_NO_WARNINGS
-#define NOMINMAX
+#include "blaDefines.hpp"
 #include "BlaHexDisplay.hpp"
 #include <FL/Fl.H>
 #include <cstring>

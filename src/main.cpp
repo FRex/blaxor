@@ -1,4 +1,4 @@
-#define WIN32
+#include "blaDefines.hpp"
 #include <FL/Fl.H>
 #include "BlaxorApp.hpp"
 
@@ -11,6 +11,15 @@ static int my_utf8_main(int argc, char ** argv)
     app.setupGui();
     return Fl::run();
 }
+
+#ifndef BLA_WINDOWS
+
+int main(int argc, char ** argv)
+{
+    return my_utf8_main(argc, argv);
+}
+
+#else
 
 /* for wcslen and WideCharToMultiByte */
 #include <wchar.h>
@@ -63,3 +72,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, INT)
     LocalFree(argv);
     return ret;
 }
+
+#endif //BLA_WINDOWS
+

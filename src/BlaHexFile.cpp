@@ -1,4 +1,4 @@
-#define _CRT_SECURE_NO_WARNINGS
+#include "blaDefines.hpp"
 #include "BlaHexFile.hpp"
 #include "osSpecific.hpp"
 
@@ -7,10 +7,19 @@ BlaHexFile::~BlaHexFile()
     close();
 }
 
+static std::FILE * my_fopen_utf8_rb(const char * fname)
+{
+#ifdef BLA_WINDOWS
+    return _wfopen(utf8ToUtf16(fname).c_str(), L"rb");
+#else
+    return std::fopen(fname, "rb");
+#endif
+}
+
 bool BlaHexFile::open(const char * fname)
 {
     close();
-    m_file = _wfopen(utf8ToUtf16(fname).c_str(), L"rb");
+    m_file = my_fopen_utf8_rb(fname);
     if(!m_file)
         return false;
 

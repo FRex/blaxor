@@ -1,4 +1,4 @@
-#define _CRT_SECURE_NO_WARNINGS
+#include "blaDefines.hpp"
 #include "prettyPrintFilesize.hpp"
 #include <cstdio>
 

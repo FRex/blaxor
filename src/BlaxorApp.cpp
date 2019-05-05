@@ -1,5 +1,4 @@
-#define WIN32
-#define _CRT_SECURE_NO_WARNINGS
+#include "blaDefines.hpp"
 #include "BlaxorApp.hpp"
 #include <FL/Fl.H>
 #include <FL/Fl_Double_Window.H>
@@ -39,6 +38,7 @@ bool BlaxorApp::openFile(const char * fname)
         m_win->label(m_wintitle.c_str());
 
     hideInputIfTooBigFile();
+    refreshBox();
     redrawAll();
     return true;
 }
