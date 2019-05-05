@@ -3,11 +3,12 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <Windows.h>
 #include <FL/x.H>
 
 
 #ifdef BLA_WINDOWS
+
+#include <Windows.h>
 
 namespace {
 

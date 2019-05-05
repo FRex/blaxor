@@ -12,6 +12,7 @@
 #include "prettyPrintFilesize.hpp"
 #include "osSpecific.hpp"
 #include "binaryParse.hpp"
+#include <cstring>
 
 const bla::s64 kMaxSearchableFileSize = 1024 * 1024 * 60;
 
