@@ -45,8 +45,10 @@ bool BlaxorApp::openFile(const char * fname)
     if(m_win)
         m_win->label(m_wintitle.c_str());
 
+    if(m_display)
+        m_display->recalculateMetrics();
+
     hideInputIfTooBigFile();
-    m_display->recalculateMetrics();
     refreshBox();
     redrawAll();
     return true;
