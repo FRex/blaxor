@@ -9,7 +9,6 @@ class BlaHexFile : BlaNonCopyable
 public:
     ~BlaHexFile();
     bool open(const char * fname);
-    bool open(const wchar_t * fname);
     void close();
     bla::s64 filesize() const;
     unsigned char getByte(bla::s64 pos);

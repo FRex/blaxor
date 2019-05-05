@@ -1,5 +1,6 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include "BlaHexFile.hpp"
+#include "osSpecific.hpp"
 
 BlaHexFile::~BlaHexFile()
 {
@@ -9,17 +10,7 @@ BlaHexFile::~BlaHexFile()
 bool BlaHexFile::open(const char * fname)
 {
     close();
-    m_file = fopen(fname, "rb");
-    if(!m_file)
-        return false;
-
-    return onFileOpen();
-}
-
-bool BlaHexFile::open(const wchar_t * fname)
-{
-    close();
-    m_file = _wfopen(fname, L"rb");
+    m_file = _wfopen(utf8ToUtf16(fname).c_str(), L"rb");
     if(!m_file)
         return false;
 

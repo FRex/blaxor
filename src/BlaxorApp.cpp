@@ -43,20 +43,6 @@ bool BlaxorApp::openFile(const char * fname)
     return true;
 }
 
-bool BlaxorApp::openFile(const wchar_t * fname)
-{
-    if(!m_file.open(fname))
-        return false;
-
-    m_wintitle = utf16ToUtf8(fname) + std::string(": ") + prettyPrintFilesize(m_file.filesize());
-    if(m_win)
-        m_win->label(m_wintitle.c_str());
-
-    hideInputIfTooBigFile();
-    redrawAll();
-    return true;
-}
-
 const double kBoxLabelUpdateTimeout = 1.0;
 const int kScrollbarWidth = 20;
 const int kBoxInitialHeight = 50;
@@ -69,7 +55,7 @@ static void update_label_to(void * data)
     Fl::repeat_timeout(kBoxLabelUpdateTimeout, &update_label_to, data);
 }
 
-static void myfiledropcb(void * udata, const wchar_t * fname)
+static void myfiledropcb(void * udata, const char * fname)
 {
     BlaxorApp * app = static_cast<BlaxorApp*>(udata);
     app->openFile(fname);

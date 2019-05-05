@@ -14,7 +14,6 @@ class BlaxorApp : BlaNonCopyable
 public:
     ~BlaxorApp();
     bool openFile(const char * fname);
-    bool openFile(const wchar_t * fname);
     void setupGui();
     void setBoxHeight(int newh);
     void findNext(const char * text);

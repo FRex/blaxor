@@ -43,7 +43,7 @@ LRESULT CALLBACK mycallback(HWND handle, UINT message, WPARAM wParam, LPARAM lPa
             std::wstring str;
             str.resize(bufsize + 1);
             if(DragQueryFileW(hdrop, i, &str[0], bufsize + 1))
-                h->callback(h->udata, str.c_str());
+                h->callback(h->udata, utf16ToUtf8(str.c_str()).c_str());
         }
 
         DragFinish(hdrop);
@@ -83,11 +83,20 @@ void maximizeWindow(Fl_Window * win)
     ShowWindow(handle, SW_MAXIMIZE);
 }
 
-std::string utf16ToUtf8(const wchar_t * fname)
+std::string utf16ToUtf8(const wchar_t * str)
 {
-    const size_t utf8len = wcslen(fname) * 3 + 10;
+    const size_t utf8len = wcslen(str) * 3 + 10;
     std::vector<char> ret;
     ret.resize(utf8len);
-    WideCharToMultiByte(CP_UTF8, 0, fname, -1, ret.data(), utf8len, NULL, NULL);
+    WideCharToMultiByte(CP_UTF8, 0, str, -1, ret.data(), utf8len, NULL, NULL);
+    return ret.data();
+}
+
+std::wstring utf8ToUtf16(const char * str)
+{
+    const size_t utf16len = strlen(str) + 10;
+    std::vector<wchar_t> ret;
+    ret.resize(utf16len);
+    MultiByteToWideChar(CP_UTF8, 0, str, -1, ret.data(), utf16len);
     return ret.data();
 }
