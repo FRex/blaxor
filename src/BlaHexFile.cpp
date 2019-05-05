@@ -21,11 +21,20 @@ static int myfseek64(std::FILE * f, bla::s64 off, int from)
 #ifdef BLA_WINDOWS
     return _fseeki64(f, off, from);
 #else
-    static_assert(sizeof(__off64_t) == 8, "__off64_t isn't 64 bit");
+    static_assert(sizeof(__off64_t) == 8, "fseeko64 isn't 64 bit?");
     return fseeko64(f, off, from);
 #endif
 }
 
+static bla::s64 myftell64(std::FILE * f)
+{
+#ifdef BLA_WINDOWS
+    return _ftelli64(f);
+#else
+    static_assert(sizeof(ftello64(f)) == 8, "ftello64 isn't 64 bit?");
+    return ftello64(f);
+#endif
+}
 
 bool BlaHexFile::open(const char * fname)
 {
@@ -78,7 +87,7 @@ bool BlaHexFile::onFileOpen()
 {
     if(0 == myfseek64(m_file, 0, SEEK_END))
     {
-        const bla::s64 s = static_cast<bla::s64>(_ftelli64(m_file));
+        const bla::s64 s = static_cast<bla::s64>(myftell64(m_file));
         if(s >= 0)
         {
             m_filesize = s;
