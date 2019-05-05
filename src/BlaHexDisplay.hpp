@@ -44,6 +44,7 @@ private:
     bool selectedByteAt(int xx, int yy) const;
 
     void attemptSelectionMove(int event, bool ctrldown);
+    void ensureScrollbarSize();
 
     int m_addresschars = 6;
     int m_bytesperline = 15;

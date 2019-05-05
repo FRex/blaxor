@@ -445,6 +445,9 @@ void BlaHexDisplay::recalculateMetrics()
     m_charareabox.w = m_onecharwidth * m_bytesperline;
     m_charareabox.h = m_linesdisplayed * fl_height();
 
+    m_selectedbyte = 0;
+    m_firstdisplayedline = 0;
+    ensureScrollbarSize();
 }
 
 bla::s64 BlaHexDisplay::getDisplayLineCount() const
@@ -458,18 +461,27 @@ bla::s64 BlaHexDisplay::getDisplayLineCount() const
 void BlaHexDisplay::setLineScrollbar(Fl_Slider * scrollbar)
 {
     m_linescrollbar = scrollbar;
+    ensureScrollbarSize();
+}
+
+void BlaHexDisplay::ensureScrollbarSize()
+{
+    if(!m_linescrollbar)
+        return;
 
     const bla::s64 totallines = getDisplayLineCount();
     if(totallines <= m_linesdisplayed)
     {
         m_linescrollbar->bounds(0, 0);
         m_linescrollbar->slider_size(1.0);
+        m_linescrollbar->value(0.0);
     }
     else
     {
         m_linescrollbar->bounds(0, static_cast<double>(totallines - m_linesdisplayed));
         const double r = static_cast<double>(m_linesdisplayed) / static_cast<double>(totallines);
         m_linescrollbar->slider_size(r);
+        m_linescrollbar->value(0.0);
         //m_linescrollbar->linesize(1);
     }
 }
