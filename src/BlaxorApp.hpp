@@ -8,6 +8,7 @@ class Fl_Box;
 class BlaHexDisplay;
 class Fl_Slider;
 class Fl_Input;
+class Fl_Button;
 
 class BlaxorApp : BlaNonCopyable
 {
@@ -30,5 +31,6 @@ private:
     BlaHexDisplay * m_display = 0x0;
     Fl_Slider * m_slider = 0x0;
     Fl_Input * m_input = 0x0;
+    Fl_Button * m_button = 0x0;
 
 };

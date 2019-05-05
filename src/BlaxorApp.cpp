@@ -4,7 +4,9 @@
 #include <FL/Fl_Double_Window.H>
 #include <FL/Fl_Slider.H>
 #include <FL/Fl_Input.H>
+#include <FL/Fl_Button.H>
 #include <FL/Fl_Box.H>
+#include <FL/Fl_Native_File_Chooser.H>
 #include "BlaHexDisplay.hpp"
 #include "BlaHexFile.hpp"
 #include "prettyPrintFilesize.hpp"
@@ -28,9 +30,14 @@ BlaxorApp::~BlaxorApp()
     delete m_win;
 }
 
+static bool null_or_empty_str(const char * str)
+{
+    return str == 0x0 || std::strlen(str) == 0;
+}
+
 bool BlaxorApp::openFile(const char * fname)
 {
-    if(!m_file.open(fname))
+    if(null_or_empty_str(fname) || !m_file.open(fname))
         return false;
 
     m_wintitle = fname + std::string(": ") + prettyPrintFilesize(m_file.filesize());
@@ -75,6 +82,20 @@ static void update_label_cb(Fl_Widget * w, void * udata)
     app->refreshBox();
 }
 
+static void openfilebuttoncb(Fl_Widget * w, void * udata)
+{
+    Fl_Native_File_Chooser chooser;
+    chooser.title("Choose a File...");
+    chooser.type(Fl_Native_File_Chooser::BROWSE_FILE);
+    const int s = chooser.show();
+    //TODO: handle -1 (error, reason in errmsg()) and 1 (cancel)?
+    if(s == 0)
+    {
+        BlaxorApp * app = static_cast<BlaxorApp*>(udata);
+        app->openFile(chooser.filename());
+    }
+}
+
 void BlaxorApp::setupGui()
 {
     const int w = 900;
@@ -83,7 +104,9 @@ void BlaxorApp::setupGui()
     const int boxh = kBoxInitialHeight;
     const int inputh = kInputInitialHeight;
     m_win = new Fl_Double_Window(w, h, m_wintitle.c_str());
-    m_box = new Fl_Box(0, 0, w, boxh);
+    m_button = new Fl_Button(0, 0, boxh, boxh, "@+9fileopen");
+    m_button->callback(&openfilebuttoncb, this);
+    m_box = new Fl_Box(boxh, 0, w - boxh, boxh);
     m_box->box(FL_BORDER_BOX);
     Fl::add_timeout(kBoxLabelUpdateTimeout, &update_label_to, this);
     m_input = new Fl_Input(0, boxh, w, inputh);
@@ -252,7 +275,7 @@ void BlaxorApp::refreshBox()
 
 void BlaxorApp::redrawAll()
 {
-    Fl_Widget * ws[] = { m_box, m_display, m_input, m_slider };
+    Fl_Widget * ws[] = { m_box, m_display, m_input, m_slider, m_button };
     for(auto w : ws)
         if(w)
             w->redraw();
