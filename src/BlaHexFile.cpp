@@ -16,6 +16,17 @@ static std::FILE * my_fopen_utf8_rb(const char * fname)
 #endif
 }
 
+static int myfseek64(std::FILE * f, bla::s64 off, int from)
+{
+#ifdef BLA_WINDOWS
+    return _fseeki64(f, off, from);
+#else
+    static_assert(sizeof(__off64_t) == 8, "__off64_t isn't 64 bit");
+    return fseeko64(f, off, from);
+#endif
+}
+
+
 bool BlaHexFile::open(const char * fname)
 {
     close();
@@ -51,7 +62,7 @@ unsigned char BlaHexFile::getByte(bla::s64 pos)
         return 0xff;
 
     unsigned char ret;
-    if(0 == _fseeki64(m_file, pos, SEEK_SET))
+    if(0 == myfseek64(m_file, pos, SEEK_SET))
         if(1 == fread(&ret, 1, 1, m_file))
             return ret;
 
@@ -65,7 +76,7 @@ bla::s64 BlaHexFile::readcount() const
 
 bool BlaHexFile::onFileOpen()
 {
-    if(0 == _fseeki64(m_file, 0, SEEK_END))
+    if(0 == myfseek64(m_file, 0, SEEK_END))
     {
         const bla::s64 s = static_cast<bla::s64>(_ftelli64(m_file));
         if(s >= 0)
