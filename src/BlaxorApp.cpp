@@ -290,8 +290,24 @@ void BlaxorApp::hideInputIfTooBigFile()
     if(!m_input)
         return;
 
+    const int w = m_win->w();
+    const int h = m_win->h();
+    const int scrollbarw = kScrollbarWidth;
+    const int boxh = kBoxInitialHeight;
+    const int inputh = kInputInitialHeight;
     if(m_file.filesize() > kMaxSearchableFileSize)
+    {
         m_input->hide();
+        m_slider->resize(w - scrollbarw, boxh, scrollbarw, h - boxh);
+        m_display->resize(0, boxh, w - scrollbarw, h - boxh);
+    }
     else
+    {
         m_input->show();
+        m_slider->resize(w - scrollbarw, boxh + inputh, scrollbarw, h - boxh - inputh);
+        m_display->resize(0, boxh + inputh, w - scrollbarw, h - boxh - inputh);
+    }
+
+    m_display->recalculateMetrics();
+    redrawAll();
 }
