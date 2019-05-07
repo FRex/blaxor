@@ -5,6 +5,7 @@
 #include <sstream>
 #include <FL/fl_draw.H>
 #include <algorithm>
+#include "blaHelpers.hpp"
 
 BlaBox::BlaBox(int x, int y, int w, int h, const char * label) :
     Fl_Widget(x, y, w, h, label)
@@ -21,13 +22,6 @@ static std::vector<std::string> split(const std::string& str)
         ret.push_back(s);
 
     return ret;
-}
-
-static int bla_text_width(const char * str)
-{
-    int w = 0, h = 0;
-    fl_measure(str, w, h, 0);
-    return w;
 }
 
 void BlaBox::draw()

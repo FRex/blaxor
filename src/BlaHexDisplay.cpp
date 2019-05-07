@@ -7,22 +7,9 @@
 #include <FL/Fl_Slider.H>
 #include "BlaHexFile.hpp"
 #include <algorithm>
+#include "blaHelpers.hpp"
 
 const int kHexFontFace = FL_SCREEN;
-
-static int bla_text_width(const char * str)
-{
-    int w = 0, h = 0;
-    fl_measure(str, w, h, 0);
-    return w;
-}
-
-static int bla_text_height(const char * str)
-{
-    int w = 0, h = 0;
-    fl_measure(str, w, h, 0);
-    return h;
-}
 
 BlaHexDisplay::BlaHexDisplay(int x, int y, int w, int h, const char * label) : Fl_Widget(x, y, w, h, label)
 {
