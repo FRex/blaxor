@@ -5,9 +5,9 @@
 #include <FL/Fl_Slider.H>
 #include <FL/Fl_Input.H>
 #include <FL/Fl_Button.H>
-#include <FL/Fl_Box.H>
 #include <FL/Fl_Native_File_Chooser.H>
 #include "BlaHexDisplay.hpp"
+#include "BlaBox.hpp"
 #include "BlaHexFile.hpp"
 #include "prettyPrintFilesize.hpp"
 #include "osSpecific.hpp"
@@ -110,7 +110,7 @@ void BlaxorApp::setupGui()
     m_win = new Fl_Double_Window(w, h, m_wintitle.c_str());
     m_button = new Fl_Button(0, 0, boxh, boxh, "@+9fileopen");
     m_button->callback(&openfilebuttoncb, this);
-    m_box = new Fl_Box(boxh, 0, w - boxh, boxh);
+    m_box = new BlaBox(boxh, 0, w - boxh, boxh);
     m_box->box(FL_BORDER_BOX);
     Fl::add_timeout(kBoxLabelUpdateTimeout, &update_label_to, this);
     m_input = new Fl_Input(0, boxh, w, inputh);

@@ -4,8 +4,8 @@
 #include <string>
 
 class Fl_Double_Window;
-class Fl_Box;
 class BlaHexDisplay;
+class BlaBox;
 class Fl_Slider;
 class Fl_Input;
 class Fl_Button;
@@ -27,7 +27,7 @@ private:
     BlaHexFile m_file;
     std::string m_wintitle = "nofile";
     Fl_Double_Window * m_win = 0x0;
-    Fl_Box * m_box = 0x0;
+    BlaBox * m_box = 0x0;
     BlaHexDisplay * m_display = 0x0;
     Fl_Slider * m_slider = 0x0;
     Fl_Input * m_input = 0x0;
