@@ -27,6 +27,9 @@ static std::vector<std::string> split(const std::string& str)
 void BlaBox::draw()
 {
     draw_box();
+    if(label() == 0x0)
+        return;
+
     const auto lines = split(label());
     fl_color(labelcolor());
     fl_font(labelfont(), labelsize());
