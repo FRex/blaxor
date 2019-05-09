@@ -26,6 +26,11 @@ static void mycallback(Fl_Widget * widget, void * data)
     my->redraw();
 }
 
+BlaxorApp::BlaxorApp()
+{
+    setWinTitle("nofile");
+}
+
 BlaxorApp::~BlaxorApp()
 {
     delete m_win;
@@ -41,10 +46,7 @@ bool BlaxorApp::openFile(const char * fname)
     if(null_or_empty_str(fname) || !m_file.open(fname))
         return false;
 
-    m_wintitle = fname + std::string(": ") + prettyPrintFilesize(m_file.filesize());
-    if(m_win)
-        m_win->label(m_wintitle.c_str());
-
+    setWinTitle(fname + std::string(": ") + prettyPrintFilesize(m_file.filesize()));
     if(m_display)
         m_display->recalculateMetrics();
 
@@ -310,4 +312,11 @@ void BlaxorApp::hideInputIfTooBigFile()
 
     m_display->recalculateMetrics();
     redrawAll();
+}
+
+void BlaxorApp::setWinTitle(const std::string& title)
+{
+    m_wintitle = "Blaxor: " + title;
+    if(m_win)
+        m_win->label(m_wintitle.c_str());
 }

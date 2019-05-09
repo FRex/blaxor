@@ -13,6 +13,7 @@ class Fl_Button;
 class BlaxorApp : BlaNonCopyable
 {
 public:
+    BlaxorApp();
     ~BlaxorApp();
     bool openFile(const char * fname);
     void setupGui();
@@ -23,9 +24,10 @@ public:
 private:
     void redrawAll();
     void hideInputIfTooBigFile();
+    void setWinTitle(const std::string& title);
 
     BlaHexFile m_file;
-    std::string m_wintitle = "nofile";
+    std::string m_wintitle;
     Fl_Double_Window * m_win = 0x0;
     BlaBox * m_box = 0x0;
     BlaHexDisplay * m_display = 0x0;
