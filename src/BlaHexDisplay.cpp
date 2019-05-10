@@ -174,10 +174,13 @@ static bool isDisplayChar(unsigned char byte)
 
 static char toDisplayChar(unsigned char byte)
 {
+    if(byte == 0x0)
+        return '.';
+
     if(isDisplayChar(byte))
         return static_cast<char>(byte);
     else
-        return '.';
+        return '^';
 }
 
 void BlaHexDisplay::drawAddr(int yy)
