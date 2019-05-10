@@ -1,8 +1,6 @@
 #include "blaDefines.hpp"
 #include "blaHelpers.hpp"
 #include <FL/fl_draw.H>
-#include <string>
-#include <cassert>
 
 int bla_text_width(const char * str)
 {
@@ -20,9 +18,7 @@ int bla_text_height(const char * str)
 
 int bla_text_width_charcount(int charcount)
 {
-    const std::string str(charcount, '@');
-    assert(charcount == static_cast<int>(str.length()));
-    return bla_text_width(str.c_str());
+    return bla_text_width("@") * charcount;
 }
 
 bool isDisplayChar(bla::byte byte)
