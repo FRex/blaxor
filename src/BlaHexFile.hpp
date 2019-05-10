@@ -11,7 +11,7 @@ public:
     bool open(const char * fname);
     void close();
     bla::s64 filesize() const;
-    unsigned char getByte(bla::s64 pos);
+    bla::byte getByte(bla::s64 pos);
     bla::s64 readcount() const;
 
 private:

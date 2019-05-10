@@ -13,6 +13,7 @@
 #include "osSpecific.hpp"
 #include "binaryParse.hpp"
 #include <cstring>
+#include "blaHelpers.hpp"
 
 const bla::s64 kMaxSearchableFileSize = 1024 * 1024 * 60;
 
@@ -158,7 +159,7 @@ static bla::s64 findAsciiInFileNext(BlaHexFile& file, bla::s64 start, const std:
             if((i + j) >= file.filesize())
                 return -1;
 
-            if(static_cast<unsigned char>(ascii[j]) != file.getByte(i + j))
+            if(static_cast<bla::byte>(ascii[j]) != file.getByte(i + j))
                 match = false;
 
         }//for j
@@ -186,12 +187,6 @@ void BlaxorApp::findNext(const char * text)
     }
 }
 
-static bool isDisplayChar(unsigned char byte)
-{
-    //printable ascii range is [0x20, 0x7f)
-    return byte >= 0x20 && byte < 0x7f;
-}
-
 static std::string getMaxAsciiAt(BlaHexFile& file, bla::s64 start, int maxchars, bool * gotmore)
 {
     const bla::s64 fs = file.filesize();
@@ -204,7 +199,7 @@ static std::string getMaxAsciiAt(BlaHexFile& file, bla::s64 start, int maxchars,
         if(start+ i >= fs)
             break;
 
-        const unsigned char c = file.getByte(start + i);
+        const bla::byte c = file.getByte(start + i);
         if(!isDisplayChar(c))
             break;
 
@@ -248,7 +243,7 @@ void BlaxorApp::refreshBox()
     sprintf(buff + strlen(buff), "ascii here(%d%s) : %s\n", (int)asciihere.size(), gotmore ? "+" : "", asciihere.c_str());
 
     //handle if selection is out of file too or is that assumed to never happen?
-    unsigned char data[4];
+    bla::byte data[4];
     data[0] = 0xff;
     data[1] = 0xff;
     data[2] = 0xff;

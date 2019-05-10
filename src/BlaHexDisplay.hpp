@@ -39,7 +39,7 @@ private:
     void drawChar(int xx, int yy);
 
     bla::s64 byteIndexAt(int xx, int yy) const;
-    unsigned char getByteAt(int xx, int yy) const;
+    bla::byte getByteAt(int xx, int yy) const;
     bool gotByteAt(int xx, int yy) const;
     bool selectedByteAt(int xx, int yy) const;
 

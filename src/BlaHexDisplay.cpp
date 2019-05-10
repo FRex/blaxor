@@ -166,13 +166,7 @@ void BlaHexDisplay::setSelectionChangeCallback(Fl_Callback * callback, void * ud
     m_selectionchangeud = udata;
 }
 
-static bool isDisplayChar(unsigned char byte)
-{
-    //printable ascii range is [0x20, 0x7f)
-    return byte >= 0x20 && byte < 0x7f;
-}
-
-static char toDisplayChar(unsigned char byte)
+static char toDisplayChar(bla::byte byte)
 {
     if(byte == 0x0)
         return '.';
@@ -204,7 +198,7 @@ void BlaHexDisplay::drawHex(int xx, int yy)
     if(!gotByteAt(xx, yy))
         return;
 
-    const unsigned char byte = getByteAt(xx, yy);
+    const bla::byte byte = getByteAt(xx, yy);
     const int charsbefore = (xx == 0) ? 0 : (3 * xx - 1);
     const int xpos = x() + m_line1 + m_padding + charsbefore * bla_text_width("A");
     const int ypos = y() + fl_height() - fl_descent() + yy * fl_height();
@@ -229,7 +223,7 @@ void BlaHexDisplay::drawChar(int xx, int yy)
     if(!gotByteAt(xx, yy))
         return;
 
-    const unsigned char byte = getByteAt(xx, yy);
+    const bla::byte byte = getByteAt(xx, yy);
     const int xpos = x() + m_line2 + m_padding + xx * bla_text_width("A");
     const int ypos = y() + fl_height() - fl_descent() + yy * fl_height();
 
@@ -253,7 +247,7 @@ bla::s64 BlaHexDisplay::byteIndexAt(int xx, int yy) const
     return (yy + m_firstdisplayedline) * m_bytesperline + xx;
 }
 
-unsigned char BlaHexDisplay::getByteAt(int xx, int yy) const
+bla::byte BlaHexDisplay::getByteAt(int xx, int yy) const
 {
     return m_file->getByte(byteIndexAt(xx, yy));
 }

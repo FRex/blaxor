@@ -64,13 +64,13 @@ static inline bool goodindex(bla::s64 pos, bla::s64 fsize)
     return (pos >= 0) && (pos < fsize);
 }
 
-unsigned char BlaHexFile::getByte(bla::s64 pos)
+bla::byte BlaHexFile::getByte(bla::s64 pos)
 {
     ++m_readcount;
     if(!goodindex(pos, m_filesize))
         return 0xff;
 
-    unsigned char ret;
+    bla::byte ret;
     if(0 == myfseek64(m_file, pos, SEEK_SET))
         if(1 == fread(&ret, 1, 1, m_file))
             return ret;
