@@ -200,7 +200,7 @@ void BlaHexDisplay::drawHex(int xx, int yy)
 
     const bla::byte byte = getByteAt(xx, yy);
     const int charsbefore = (xx == 0) ? 0 : (3 * xx - 1);
-    const int xpos = x() + m_line1 + m_padding + charsbefore * bla_text_width("A");
+    const int xpos = x() + m_line1 + m_padding + bla_text_width_charcount(charsbefore);
     const int ypos = y() + fl_height() - fl_descent() + yy * fl_height();
 
     const char * padstr = (xx > 0) ? " " : "";
