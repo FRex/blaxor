@@ -15,6 +15,8 @@ public:
 
 class Fl_Slider;
 
+const int kHexFontFace = FL_SCREEN;
+
 class BlaHexDisplay : public Fl_Widget
 {
 public:

@@ -9,8 +9,6 @@
 #include <algorithm>
 #include "blaHelpers.hpp"
 
-const int kHexFontFace = FL_SCREEN;
-
 BlaHexDisplay::BlaHexDisplay(int x, int y, int w, int h, const char * label) : Fl_Widget(x, y, w, h, label)
 {
     box(FL_FLAT_BOX);
@@ -199,13 +197,13 @@ void BlaHexDisplay::drawHex(int xx, int yy)
         return;
 
     const bla::byte byte = getByteAt(xx, yy);
-    const int charsbefore = (xx == 0) ? 0 : (3 * xx - 1);
+    const int charsbefore = 3 * xx;
+
     const int xpos = x() + m_line1 + m_padding + bla_text_width_charcount(charsbefore);
     const int ypos = y() + fl_height() - fl_descent() + yy * fl_height();
 
-    const char * padstr = (xx > 0) ? " " : "";
     char buff[10];
-    sprintf(buff, "%s%02x", padstr, byte);
+    sprintf(buff, "%02x", byte);
 
     if(isDisplayChar(byte))
         fl_color(FL_RED);

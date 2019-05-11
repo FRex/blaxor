@@ -29,6 +29,10 @@ static void mycallback(Fl_Widget * widget, void * data)
 
 BlaxorApp::BlaxorApp()
 {
+#ifndef BLA_WINDOWS
+    //fix (?) for Linux where FL_SCREEN wasn't monospaced
+    Fl::set_font(kHexFontFace, "monospace");
+#endif
     setWinTitle("nofile");
 }
 
