@@ -13,6 +13,7 @@ public:
     bla::s64 filesize() const;
     bla::byte getByte(bla::s64 pos);
     bla::s64 readcount() const;
+    bool goodIndex(bla::s64 idx) const;
 
 private:
     bool onFileOpen();

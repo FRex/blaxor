@@ -59,15 +59,10 @@ bla::s64 BlaHexFile::filesize() const
     return m_filesize;
 }
 
-static inline bool goodindex(bla::s64 pos, bla::s64 fsize)
-{
-    return (pos >= 0) && (pos < fsize);
-}
-
 bla::byte BlaHexFile::getByte(bla::s64 pos)
 {
     ++m_readcount;
-    if(!goodindex(pos, m_filesize))
+    if(!goodIndex(pos))
         return 0xff;
 
     bla::byte ret;
@@ -81,6 +76,11 @@ bla::byte BlaHexFile::getByte(bla::s64 pos)
 bla::s64 BlaHexFile::readcount() const
 {
     return m_readcount;
+}
+
+bool BlaHexFile::goodIndex(bla::s64 idx) const
+{
+    return (0 <= idx) && (idx < m_filesize);
 }
 
 bool BlaHexFile::onFileOpen()
