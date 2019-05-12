@@ -14,6 +14,7 @@
 #include "binaryParse.hpp"
 #include <cstring>
 #include "blaHelpers.hpp"
+#include "utf8dfa.hpp"
 
 const bla::s64 kMaxSearchableFileSize = 1024 * 1024 * 60;
 
@@ -221,6 +222,41 @@ static std::string getMaxAsciiAt(BlaHexFile& file, bla::s64 start, int maxchars,
     return ret;
 }
 
+static bool hasutf8here(BlaHexFile& file, bla::s64 s, int bytesneeded, bla::u32 * codepoint)
+{
+    bla::u32 state = 0;
+    for(int i = 0; i < 4; ++i)
+    {
+        if(!file.goodIndex(s + i))
+            return false;
+
+        if(utf8dfa::decode(&state, codepoint, file.getByte(s + i)) == utf8dfa::kAcceptState)
+            return (i  + 1) >= bytesneeded;
+    }
+
+    return false;
+}
+
+static unsigned utf8Here(BlaHexFile& file, bla::s64 start, int * offset)
+{
+    bla::u32 codepoint = 0u;
+    for(int i = 0; i < 4; ++i)
+    {
+        if(hasutf8here(file, start - i, i + 1, &codepoint))
+        {
+            if(offset)
+                *offset = i;
+
+            return codepoint;
+        }//if
+    }//for
+
+    if(offset)
+        *offset = 0;
+
+    return 0u;
+}
+
 static void byteToBinaryString(bla::byte b, char * out)
 {
     for(int i = 7; i >= 0; --i)
@@ -241,6 +277,10 @@ void BlaxorApp::refreshBox()
 
     const bla::s64 fs = m_file.filesize();
     const bla::s64 selected = m_display->getSelectedByte();
+
+    int offset = 0;
+    const unsigned u8here = utf8Here(m_file, selected, &offset);
+    sprintf(buff + strlen(buff), "utf8(%d) codepoint: 0x%06x,", -offset, u8here);
 
     bool gotmore = false;
     const std::string asciihere = getMaxAsciiAt(m_file, selected, 50, &gotmore);
