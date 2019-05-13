@@ -257,14 +257,6 @@ static unsigned utf8Here(BlaHexFile& file, bla::s64 start, int * offset)
     return 0u;
 }
 
-static void byteToBinaryString(bla::byte b, char * out)
-{
-    for(int i = 7; i >= 0; --i)
-        out[7 - i] = ((1 << i) & b) ? '1' : '0';
-
-    out[8] = '\0';
-}
-
 void BlaxorApp::refreshBox()
 {
     if(!m_box || m_file.filesize() == 0)
