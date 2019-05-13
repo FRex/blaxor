@@ -192,36 +192,6 @@ void BlaxorApp::findNext(const char * text)
     }
 }
 
-static std::string getMaxAsciiAt(BlaHexFile& file, bla::s64 start, int maxchars, bool * gotmore)
-{
-    const bla::s64 fs = file.filesize();
-    if(gotmore)
-        *gotmore = false;
-
-    std::string ret;
-    for(int i = 0; i < (maxchars + 1); ++i)
-    {
-        if(start+ i >= fs)
-            break;
-
-        const bla::byte c = file.getByte(start + i);
-        if(!isDisplayChar(c))
-            break;
-
-        if(i == maxchars)
-        {
-            if(gotmore)
-                *gotmore = true;
-
-            break;
-        }
-
-        ret.push_back(static_cast<char>(c));
-    }
-
-    return ret;
-}
-
 static bool hasutf8here(BlaHexFile& file, bla::s64 s, int bytesneeded, bla::u32 * codepoint)
 {
     bla::u32 state = 0;
@@ -231,10 +201,81 @@ static bool hasutf8here(BlaHexFile& file, bla::s64 s, int bytesneeded, bla::u32 
             return false;
 
         if(utf8dfa::decode(&state, codepoint, file.getByte(s + i)) == utf8dfa::kAcceptState)
-            return (i  + 1) >= bytesneeded;
+            return (i + 1) >= bytesneeded;
     }
 
     return false;
+}
+
+static bool isUtf8SequenceHere(BlaHexFile& file, bla::s64 start, int * back)
+{
+    bla::u32 codepoint = 0u;
+    for(int i = 0; i < 4; ++i)
+    {
+        if(hasutf8here(file, start - i, i + 1, &codepoint))
+        {
+            if(back)
+                *back = i;
+
+            return true;
+        }//if
+    }//for
+
+    return false;
+}
+
+static int utf8ByteLenHere(BlaHexFile& file, bla::s64 start, int maxchars, bool * gotmore)
+{
+    if(gotmore)
+        *gotmore = false;
+
+    bla::u32 state = 0u;
+    bla::u32 codep = 0u;
+
+    int ret = 0;
+    int accepted = 0;
+    bla::s64 i = start;
+    while(true)
+    {
+        if(!file.goodIndex(i))
+            return ret;
+
+        utf8dfa::decode(&state, &codep, file.getByte(i));
+
+        if(state == utf8dfa::kRejectState)
+            return ret;
+
+        if(state == utf8dfa::kAcceptState)
+        {
+            ++accepted;
+            if(accepted == maxchars)
+            {
+                if(gotmore)
+                    *gotmore = true;
+
+                return ret;
+            }
+
+            ret = static_cast<int>(i - start) + 1;
+        }//if
+
+        ++i;
+    }//while true
+}
+
+static std::string getMaxUtf8At(BlaHexFile& file, bla::s64 start, int maxchars, bool * gotmore)
+{
+    int back = 0;
+    if(maxchars <= 0 || !isUtf8SequenceHere(file, start, &back))
+        return "";
+
+    start -= back;
+    const int utf8len = utf8ByteLenHere(file, start, maxchars, gotmore);
+    std::string ret;
+    for(int i = 0; i < utf8len; ++i)
+        ret.push_back(static_cast<char>(file.getByte(start + i)));
+
+    return ret;
 }
 
 static unsigned utf8Here(BlaHexFile& file, bla::s64 start, int * offset)
@@ -275,8 +316,8 @@ void BlaxorApp::refreshBox()
     sprintf(buff + strlen(buff), "utf8(%d) codepoint: 0x%06x,", -offset, u8here);
 
     bool gotmore = false;
-    const std::string asciihere = getMaxAsciiAt(m_file, selected, 50, &gotmore);
-    sprintf(buff + strlen(buff), "ascii here(%d%s) : %s\n", (int)asciihere.size(), gotmore ? "+" : "", asciihere.c_str());
+    const std::string asciihere = getMaxUtf8At(m_file, selected, 50, &gotmore);
+    sprintf(buff + strlen(buff), "utf8 here(%d%s) : %s\n", (int)asciihere.size(), gotmore ? "+" : "", asciihere.c_str());
 
     //handle if selection is out of file too or is that assumed to never happen?
     bla::byte data[4];
