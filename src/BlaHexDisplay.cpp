@@ -206,9 +206,16 @@ void BlaHexDisplay::drawHex(int xx, int yy)
     sprintf(buff, "%02x", byte);
 
     if(isDisplayChar(byte))
+    {
         fl_color(FL_RED);
+    }
     else
-        fl_color(FL_BLACK);
+    {
+        if(isUtf8SequenceHere(*m_file, byteIndexAt(xx, yy), 0x0))
+            fl_color(FL_BLUE);
+        else
+            fl_color(FL_BLACK);
+    }
 
     if(selectedByteAt(xx, yy))
         fl_color(FL_YELLOW);
@@ -230,7 +237,9 @@ void BlaHexDisplay::drawChar(int xx, int yy)
     buff[1] = '\0';
 
     if(isDisplayChar(byte))
+    {
         fl_color(FL_RED);
+    }
     else
     {
         if(isUtf8SequenceHere(*m_file, byteIndexAt(xx, yy), 0x0))
