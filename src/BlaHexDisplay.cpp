@@ -232,7 +232,12 @@ void BlaHexDisplay::drawChar(int xx, int yy)
     if(isDisplayChar(byte))
         fl_color(FL_RED);
     else
-        fl_color(FL_BLACK);
+    {
+        if(isUtf8SequenceHere(*m_file, byteIndexAt(xx, yy), 0x0))
+            fl_color(FL_BLUE);
+        else
+            fl_color(FL_BLACK);
+    }
 
     if(selectedByteAt(xx, yy))
         fl_color(FL_YELLOW);

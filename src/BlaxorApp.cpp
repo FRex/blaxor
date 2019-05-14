@@ -192,38 +192,6 @@ void BlaxorApp::findNext(const char * text)
     }
 }
 
-static bool hasutf8here(BlaHexFile& file, bla::s64 s, int bytesneeded, bla::u32 * codepoint)
-{
-    bla::u32 state = 0;
-    for(int i = 0; i < 4; ++i)
-    {
-        if(!file.goodIndex(s + i))
-            return false;
-
-        if(utf8dfa::decode(&state, codepoint, file.getByte(s + i)) == utf8dfa::kAcceptState)
-            return (i + 1) >= bytesneeded;
-    }
-
-    return false;
-}
-
-static bool isUtf8SequenceHere(BlaHexFile& file, bla::s64 start, int * back)
-{
-    bla::u32 codepoint = 0u;
-    for(int i = 0; i < 4; ++i)
-    {
-        if(hasutf8here(file, start - i, i + 1, &codepoint))
-        {
-            if(back)
-                *back = i;
-
-            return true;
-        }//if
-    }//for
-
-    return false;
-}
-
 static int utf8ByteLenHere(BlaHexFile& file, bla::s64 start, int maxchars, bool * gotmore)
 {
     if(gotmore)
@@ -283,7 +251,7 @@ static unsigned utf8Here(BlaHexFile& file, bla::s64 start, int * offset)
     bla::u32 codepoint = 0u;
     for(int i = 0; i < 4; ++i)
     {
-        if(hasutf8here(file, start - i, i + 1, &codepoint))
+        if(hasUtf8Here(file, start - i, i + 1, &codepoint))
         {
             if(offset)
                 *offset = i;
