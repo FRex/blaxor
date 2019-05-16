@@ -266,9 +266,9 @@ static unsigned utf8Here(BlaHexFile& file, bla::s64 start, int * offset)
     return 0u;
 }
 
-static std::string cutAtFirst(const std::string& str, char c)
+static std::string firstLine(const std::string& str)
 {
-    return str.substr(0u, str.find(c));
+    return str.substr(0u, str.find('\n'));
 }
 
 void BlaxorApp::refreshBox()
@@ -289,7 +289,7 @@ void BlaxorApp::refreshBox()
     sprintf(buff + strlen(buff), "utf8(%d) codepoint: 0x%06x,", -offset, u8here);
 
     bool gotmore = false;
-    const std::string asciihere = cutAtFirst(getMaxUtf8At(m_file, selected, 50, &gotmore), '\n');
+    const std::string asciihere = firstLine(getMaxUtf8At(m_file, selected, 50, &gotmore));
     sprintf(buff + strlen(buff), "utf8 here(%d%s) : %s\n", (int)asciihere.size(), gotmore ? "+" : "", asciihere.c_str());
 
     //handle if selection is out of file too or is that assumed to never happen?
