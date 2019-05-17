@@ -8,7 +8,7 @@
 #include <FL/Fl_Native_File_Chooser.H>
 #include "BlaHexDisplay.hpp"
 #include "BlaBox.hpp"
-#include "BlaHexFile.hpp"
+#include "BlaFile.hpp"
 #include "prettyPrintFilesize.hpp"
 #include "osSpecific.hpp"
 #include "binaryParse.hpp"
@@ -154,7 +154,7 @@ void BlaxorApp::setBoxHeight(int newh)
     redrawAll();
 }
 
-static bla::s64 findAsciiInFileNext(BlaHexFile& file, bla::s64 start, const std::string& ascii)
+static bla::s64 findAsciiInFileNext(BlaFile& file, bla::s64 start, const std::string& ascii)
 {
     for(bla::s64 i = start; i < file.filesize(); ++i)
     {
@@ -192,7 +192,7 @@ void BlaxorApp::findNext(const char * text)
     }
 }
 
-static int utf8ByteLenHere(BlaHexFile& file, bla::s64 start, int maxchars, bool * gotmore)
+static int utf8ByteLenHere(BlaFile& file, bla::s64 start, int maxchars, bool * gotmore)
 {
     if(gotmore)
         *gotmore = false;
@@ -231,7 +231,7 @@ static int utf8ByteLenHere(BlaHexFile& file, bla::s64 start, int maxchars, bool 
     }//while true
 }
 
-static std::string getMaxUtf8At(BlaHexFile& file, bla::s64 start, int maxchars, bool * gotmore)
+static std::string getMaxUtf8At(BlaFile& file, bla::s64 start, int maxchars, bool * gotmore)
 {
     int back = 0;
     if(maxchars <= 0 || !isUtf8SequenceHere(file, start, &back))
@@ -246,7 +246,7 @@ static std::string getMaxUtf8At(BlaHexFile& file, bla::s64 start, int maxchars, 
     return ret;
 }
 
-static unsigned utf8Here(BlaHexFile& file, bla::s64 start, int * offset)
+static unsigned utf8Here(BlaFile& file, bla::s64 start, int * offset)
 {
     bla::u32 codepoint = 0u;
     for(int i = 0; i < 4; ++i)

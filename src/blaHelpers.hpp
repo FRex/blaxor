@@ -10,6 +10,6 @@ bool isDisplayChar(bla::byte byte);
 
 void byteToBinaryString(bla::byte b, char * out);
 
-class BlaHexFile;
-bool isUtf8SequenceHere(BlaHexFile& file, bla::s64 start, int * back);
-bool hasUtf8Here(BlaHexFile& file, bla::s64 s, int bytesneeded, bla::u32 * codepoint);
+class BlaFile;
+bool isUtf8SequenceHere(BlaFile& file, bla::s64 start, int * back);
+bool hasUtf8Here(BlaFile& file, bla::s64 s, int bytesneeded, bla::u32 * codepoint);

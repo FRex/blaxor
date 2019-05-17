@@ -1,6 +1,6 @@
 #pragma once
 #include "BlaNonCopyable.hpp"
-#include "BlaHexFile.hpp"
+#include "BlaFile.hpp"
 #include <string>
 
 class Fl_Double_Window;
@@ -26,7 +26,7 @@ private:
     void hideInputIfTooBigFile();
     void setWinTitle(const std::string& title);
 
-    BlaHexFile m_file;
+    BlaFile m_file;
     std::string m_wintitle;
     Fl_Double_Window * m_win = 0x0;
     BlaBox * m_box = 0x0;

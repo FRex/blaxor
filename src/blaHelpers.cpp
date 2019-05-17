@@ -1,7 +1,7 @@
 #include "blaDefines.hpp"
 #include "blaHelpers.hpp"
 #include <FL/fl_draw.H>
-#include "BlaHexFile.hpp"
+#include "BlaFile.hpp"
 #include "utf8dfa.hpp"
 
 int bla_text_width(const char * str)
@@ -37,7 +37,7 @@ void byteToBinaryString(bla::byte b, char * out)
     out[8] = '\0';
 }
 
-bool isUtf8SequenceHere(BlaHexFile& file, bla::s64 start, int * back)
+bool isUtf8SequenceHere(BlaFile& file, bla::s64 start, int * back)
 {
     bla::u32 codepoint = 0u;
     for(int i = 0; i < 4; ++i)
@@ -54,7 +54,7 @@ bool isUtf8SequenceHere(BlaHexFile& file, bla::s64 start, int * back)
     return false;
 }
 
-bool hasUtf8Here(BlaHexFile& file, bla::s64 s, int bytesneeded, bla::u32 * codepoint)
+bool hasUtf8Here(BlaFile& file, bla::s64 s, int bytesneeded, bla::u32 * codepoint)
 {
     bla::u32 state = 0;
     for(int i = 0; i < 4; ++i)

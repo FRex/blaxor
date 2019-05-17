@@ -1,8 +1,8 @@
 #include "blaDefines.hpp"
-#include "BlaHexFile.hpp"
+#include "BlaFile.hpp"
 #include "osSpecific.hpp"
 
-BlaHexFile::~BlaHexFile()
+BlaFile::~BlaFile()
 {
     close();
 }
@@ -36,7 +36,7 @@ static bla::s64 myftell64(std::FILE * f)
 #endif
 }
 
-bool BlaHexFile::open(const char * fname)
+bool BlaFile::open(const char * fname)
 {
     close();
     m_file = my_fopen_utf8_rb(fname);
@@ -46,7 +46,7 @@ bool BlaHexFile::open(const char * fname)
     return onFileOpen();
 }
 
-void BlaHexFile::close()
+void BlaFile::close()
 {
     m_filesize = 0;
     m_readcount = 0;
@@ -54,12 +54,12 @@ void BlaHexFile::close()
         std::fclose(m_file);
 }
 
-bla::s64 BlaHexFile::filesize() const
+bla::s64 BlaFile::filesize() const
 {
     return m_filesize;
 }
 
-bla::byte BlaHexFile::getByte(bla::s64 pos)
+bla::byte BlaFile::getByte(bla::s64 pos)
 {
     ++m_readcount;
     if(!goodIndex(pos))
@@ -73,17 +73,17 @@ bla::byte BlaHexFile::getByte(bla::s64 pos)
     return 0xff;
 }
 
-bla::s64 BlaHexFile::readcount() const
+bla::s64 BlaFile::readcount() const
 {
     return m_readcount;
 }
 
-bool BlaHexFile::goodIndex(bla::s64 idx) const
+bool BlaFile::goodIndex(bla::s64 idx) const
 {
     return (0 <= idx) && (idx < m_filesize);
 }
 
-bool BlaHexFile::onFileOpen()
+bool BlaFile::onFileOpen()
 {
     if(0 == myfseek64(m_file, 0, SEEK_END))
     {

@@ -4,10 +4,10 @@
 #include "BlaNonCopyable.hpp"
 #include "blatype.hpp"
 
-class BlaHexFile : BlaNonCopyable
+class BlaFile : BlaNonCopyable
 {
 public:
-    ~BlaHexFile();
+    ~BlaFile();
     bool open(const char * fname);
     void close();
     bla::s64 filesize() const;

@@ -2,7 +2,7 @@
 #include <FL/Fl_Widget.H>
 #include "blatype.hpp"
 
-class BlaHexFile;
+class BlaFile;
 
 class BlaIntRect
 {
@@ -21,7 +21,7 @@ class BlaHexDisplay : public Fl_Widget
 {
 public:
     BlaHexDisplay(int x, int y, int w, int h, const char * label = 0x0);
-    void setFile(BlaHexFile * file);
+    void setFile(BlaFile * file);
     void recalculateMetrics();
     bla::s64 getDisplayLineCount() const;
     void setLineScrollbar(Fl_Slider * scrollbar);
@@ -53,7 +53,7 @@ private:
     int m_padding = 4;
     int m_line1 = 10;
     int m_line2 = 20;
-    BlaHexFile * m_file = 0x0;
+    BlaFile * m_file = 0x0;
     bla::s64 m_selectedbyte = 0;
     BlaIntRect m_hexareabox;
     int m_linesdisplayed = 0;

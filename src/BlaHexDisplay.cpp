@@ -5,7 +5,7 @@
 #include <cstdio>
 #include <FL/fl_draw.H>
 #include <FL/Fl_Slider.H>
-#include "BlaHexFile.hpp"
+#include "BlaFile.hpp"
 #include <algorithm>
 #include "blaHelpers.hpp"
 
@@ -492,7 +492,7 @@ void BlaHexDisplay::ensureSelectionInView()
         setSelectedByte(firstbyte);
 }
 
-void BlaHexDisplay::setFile(BlaHexFile * file)
+void BlaHexDisplay::setFile(BlaFile * file)
 {
     m_file = file;
 }
