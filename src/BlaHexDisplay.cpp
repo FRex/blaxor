@@ -205,17 +205,7 @@ void BlaHexDisplay::drawHex(int xx, int yy)
     char buff[10];
     sprintf(buff, "%02x", byte);
 
-    if(isDisplayChar(byte))
-    {
-        fl_color(FL_RED);
-    }
-    else
-    {
-        if(byte && isUtf8SequenceHere(*m_file, byteIndexAt(xx, yy), 0x0))
-            fl_color(FL_BLUE);
-        else
-            fl_color(FL_BLACK);
-    }
+    setColorForByteDraw(byte, byteIndexAt(xx, yy));
 
     if(selectedByteAt(xx, yy))
         fl_color(FL_YELLOW);
@@ -236,17 +226,7 @@ void BlaHexDisplay::drawChar(int xx, int yy)
     buff[0] = toDisplayChar(byte);
     buff[1] = '\0';
 
-    if(isDisplayChar(byte))
-    {
-        fl_color(FL_RED);
-    }
-    else
-    {
-        if(byte && isUtf8SequenceHere(*m_file, byteIndexAt(xx, yy), 0x0))
-            fl_color(FL_BLUE);
-        else
-            fl_color(FL_BLACK);
-    }
+    setColorForByteDraw(byte, byteIndexAt(xx, yy));
 
     if(selectedByteAt(xx, yy))
         fl_color(FL_YELLOW);
@@ -473,6 +453,21 @@ void BlaHexDisplay::ensureScrollbarSize()
         m_linescrollbar->slider_size(r);
         m_linescrollbar->value(0.0);
         //m_linescrollbar->linesize(1);
+    }
+}
+
+void BlaHexDisplay::setColorForByteDraw(bla::byte b, bla::s64 idx)
+{
+    if(isDisplayChar(b))
+    {
+        fl_color(FL_RED);
+    }
+    else
+    {
+        if(b && isUtf8SequenceHere(*m_file, idx, 0x0))
+            fl_color(FL_BLUE);
+        else
+            fl_color(FL_BLACK);
     }
 }
 

@@ -48,6 +48,8 @@ private:
     void attemptSelectionMove(int event, bool ctrldown);
     void ensureScrollbarSize();
 
+    void setColorForByteDraw(bla::byte b, bla::s64 idx);
+
     int m_addresschars = 6;
     int m_bytesperline = 15;
     int m_padding = 4;
