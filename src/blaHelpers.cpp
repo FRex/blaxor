@@ -3,6 +3,7 @@
 #include <FL/fl_draw.H>
 #include "BlaFile.hpp"
 #include "utf8dfa.hpp"
+#include <cassert>
 
 int bla_text_width(const char * str)
 {
@@ -67,4 +68,25 @@ bool hasUtf8Here(BlaFile& file, bla::s64 s, int bytesneeded, bla::u32 * codepoin
     }
 
     return false;
+}
+
+int utf8CodepointLen(const char * str)
+{
+    assert(str);
+    if(!str)
+        return 0;
+
+    int ret = 0;
+    bla::u32 state = utf8dfa::kAcceptState;
+    bla::u32 codepoint =0u;
+    while(*str != '\0')
+    {
+        utf8dfa::decode(&state, &codepoint, static_cast<bla::u8>(*str));
+        if(state == utf8dfa::kAcceptState)
+            ++ret;
+
+        ++str;
+    }//while
+
+    return ret;
 }

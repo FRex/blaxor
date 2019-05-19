@@ -290,7 +290,14 @@ void BlaxorApp::refreshBox()
 
     bool gotmore = false;
     const std::string asciihere = firstLine(getMaxUtf8At(m_file, selected, 50, &gotmore));
-    sprintf(buff + strlen(buff), "utf8 here(%d%s) : %s\n", (int)asciihere.size(), gotmore ? "+" : "", asciihere.c_str());
+    sprintf(
+        buff + strlen(buff),
+        "utf8 here(%d/%d%s) : %s\n",
+        utf8CodepointLen(asciihere.c_str()),
+        (int)asciihere.size(),
+        gotmore ? "+" : "",
+        asciihere.c_str()
+    );
 
     //handle if selection is out of file too or is that assumed to never happen?
     bla::byte data[4];
