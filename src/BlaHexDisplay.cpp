@@ -116,6 +116,15 @@ int BlaHexDisplay::handle(int event)
             redraw();
             return 1;
         }
+
+        if(0 == std::strcmp("b", Fl::event_text()))
+        {
+            m_binary = !m_binary;
+            recalculateMetrics();
+            redraw();
+            return 1;
+        }
+
         break;
     case FL_MOUSEWHEEL:
         if(m_linescrollbar)
@@ -197,13 +206,20 @@ void BlaHexDisplay::drawHex(int xx, int yy)
         return;
 
     const bla::byte byte = getByteAt(xx, yy);
-    const int charsbefore = 3 * xx;
+    const int charsbefore = (m_binary ? 9 : 3) * xx;
 
     const int xpos = x() + m_line1 + m_padding + bla_text_width_charcount(charsbefore);
     const int ypos = y() + fl_height() - fl_descent() + yy * fl_height();
 
     char buff[10];
-    sprintf(buff, "%02x", byte);
+    if(m_binary)
+    {
+        byteToBinaryString(byte, buff);
+    }
+    else
+    {
+        sprintf(buff, "%02x", byte);
+    }
 
     setColorForByteDraw(byte, byteIndexAt(xx, yy));
 
@@ -359,7 +375,7 @@ static int calcAddrHexNeeded(bla::s64 filesize)
     int ret = 0;
     while(filesize > 0)
     {
-        filesize = filesize >> 4;
+        filesize /= 16;
         ++ret;
     }
     return ret;
@@ -376,9 +392,10 @@ void BlaHexDisplay::recalculateMetrics()
     m_bytesperline = 1;
     const int powers[] = { 2, 4, 8, 16, 32, 64 };
     int lastgoodattempt = 0;
+    const int charsperbyte = m_binary ? 9 : 3;
     for(int i : powers)
     {
-        const int attempt = addrwidth + bla_text_width_charcount(i * 4 - 1) + 4 * m_padding;
+        const int attempt = addrwidth + bla_text_width_charcount(i * (charsperbyte + 1) - 1) + 4 * m_padding;
         if(attempt > w())
             break;
 
@@ -395,7 +412,7 @@ void BlaHexDisplay::recalculateMetrics()
 
     //padding and bytes per line are done so find out position of two dividing lines
     m_line1 = addrwidth + m_padding;
-    m_line2 = m_line1 + m_padding + bla_text_width_charcount(m_bytesperline * 3 - 1) + m_padding;
+    m_line2 = m_line1 + m_padding + bla_text_width_charcount(m_bytesperline * charsperbyte - 1) + m_padding;
 
     //printf("(addr, bytes, padding) = (%d, %d, %d)\n", m_addresschars, m_bytesperline, m_padding);
 
@@ -404,7 +421,7 @@ void BlaHexDisplay::recalculateMetrics()
 
     m_hexareabox.x = m_line1 + m_padding;
     m_hexareabox.y = 0;
-    m_hexareabox.w = bla_text_width_charcount(m_bytesperline * 3 - 1);
+    m_hexareabox.w = bla_text_width_charcount(m_bytesperline * charsperbyte - 1);
     m_hexareabox.h = m_linesdisplayed * fl_height();
 
     m_onecharwidth = bla_text_width("A");

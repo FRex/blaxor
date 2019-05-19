@@ -67,5 +67,6 @@ private:
     Fl_Callback * m_selectionchangecb = 0x0;
     void * m_selectionchangeud = 0x0;
     int m_fontsize = 16;
+    bool m_binary = false;
 
 };
