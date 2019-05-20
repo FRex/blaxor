@@ -17,8 +17,8 @@ BlaHexDisplay::BlaHexDisplay(int x, int y, int w, int h, const char * label) : F
 
 void BlaHexDisplay::draw()
 {
-    if(!m_file)
-        return;
+    if(!m_file || m_toosmall)
+        return draw_box(FL_FLAT_BOX, FL_RED);
 
     draw_box();
     //TODO: some check here that widget is big enough to work
@@ -389,7 +389,7 @@ void BlaHexDisplay::recalculateMetrics()
     fl_font(kHexFontFace, m_fontsize);
     const int addrwidth = bla_text_width_charcount(m_addresschars);
 
-    m_bytesperline = 1;
+    m_bytesperline = -1;
     const int powers[] = { 2, 4, 8, 16, 32, 64 };
     int lastgoodattempt = 0;
     const int charsperbyte = m_binary ? 9 : 3;
@@ -435,6 +435,10 @@ void BlaHexDisplay::recalculateMetrics()
     m_selectedbyte = 0;
     m_firstdisplayedline = 0;
     ensureScrollbarSize();
+
+    //if too small then set a bool + set to > 0 for safety from crashes
+    m_toosmall = m_bytesperline <= 0;
+    m_bytesperline = std::max<int>(m_bytesperline, 1);
 }
 
 bla::s64 BlaHexDisplay::getDisplayLineCount() const

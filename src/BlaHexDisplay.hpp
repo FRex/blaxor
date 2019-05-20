@@ -68,5 +68,6 @@ private:
     void * m_selectionchangeud = 0x0;
     int m_fontsize = 16;
     bool m_binary = false;
+    bool m_toosmall = true;
 
 };
