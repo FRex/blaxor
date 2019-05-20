@@ -116,11 +116,18 @@ void BlaxorApp::setupGui()
     const int boxh = kBoxInitialHeight;
     const int inputh = kInputInitialHeight;
     m_win = new Fl_Double_Window(w, h, m_wintitle.c_str());
+
+    //top group with resizeable set to box only so that the button won't resize
+    m_topgroup = new Fl_Group(0, 0, w, boxh);
     m_button = new Fl_Button(0, 0, boxh, boxh, "@+9fileopen");
     m_button->callback(&openfilebuttoncb, this);
     m_box = new BlaBox(boxh, 0, w - boxh, boxh);
     m_box->box(FL_BORDER_BOX);
     Fl::add_timeout(kBoxLabelUpdateTimeout, &update_label_to, this);
+    m_topgroup->resizable(m_box);
+    m_topgroup->end();
+
+    //widgets in main window, with resizeable hex display area
     m_input = new Fl_Input(0, boxh, w, inputh);
     m_input->callback(&inputcb, this);
     m_slider = new Fl_Slider(w - scrollbarw, boxh + inputh, scrollbarw, h - boxh - inputh);
@@ -333,7 +340,7 @@ void BlaxorApp::refreshBox()
 
 void BlaxorApp::redrawAll()
 {
-    Fl_Widget * ws[] = { m_box, m_display, m_input, m_slider, m_button };
+    Fl_Widget * ws[] = { m_box, m_display, m_input, m_slider, m_button, m_topgroup };
     for(auto w : ws)
         if(w)
             w->redraw();

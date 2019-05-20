@@ -9,6 +9,7 @@ class BlaBox;
 class Fl_Slider;
 class Fl_Input;
 class Fl_Button;
+class Fl_Group;
 
 class BlaxorApp : BlaNonCopyable
 {
@@ -34,5 +35,6 @@ private:
     Fl_Slider * m_slider = 0x0;
     Fl_Input * m_input = 0x0;
     Fl_Button * m_button = 0x0;
+    Fl_Group * m_topgroup = 0x0;
 
 };
