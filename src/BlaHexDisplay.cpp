@@ -432,13 +432,20 @@ void BlaHexDisplay::recalculateMetrics()
     m_charareabox.w = bla_text_width_charcount(m_bytesperline);
     m_charareabox.h = m_linesdisplayed * fl_height();
 
-    m_selectedbyte = 0;
-    m_firstdisplayedline = 0;
     ensureScrollbarSize();
 
     //if too small then set a bool + set to > 0 for safety from crashes
     m_toosmall = m_bytesperline <= 0;
     m_bytesperline = std::max<int>(m_bytesperline, 1);
+
+    //move/scroll the view a bit if we are out of it now with selection
+    const bla::s64 line = m_selectedbyte / m_bytesperline;
+    if(!(m_firstdisplayedline <= line && line < m_firstdisplayedline + m_linesdisplayed))
+    {
+        m_firstdisplayedline = line;
+        if(m_linescrollbar)
+            m_linescrollbar->value(static_cast<double>(line));
+    }
 }
 
 bla::s64 BlaHexDisplay::getDisplayLineCount() const
