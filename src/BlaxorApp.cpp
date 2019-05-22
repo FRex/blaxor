@@ -286,7 +286,7 @@ void BlaxorApp::refreshBox()
     const bla::s64 rc = m_file.readcount();
     char buff[900]; //move to member vector that is few megs, for total safety
 
-    sprintf(buff, "total bytes read: %lld, ", rc);
+    sprintf(buff, "sel = %lld, total bytes read: %lld, ", m_display->getSelectedByte(), rc);
 
     const bla::s64 fs = m_file.filesize();
     const bla::s64 selected = m_display->getSelectedByte();
