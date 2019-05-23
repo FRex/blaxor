@@ -15,18 +15,9 @@
 #include <cstring>
 #include "blaHelpers.hpp"
 #include "utf8dfa.hpp"
+#include "BlaxorApp_callbacks.hpp"
 
 const bla::s64 kMaxSearchableFileSize = 1024 * 1024 * 60;
-
-static void mycallback(Fl_Widget * widget, void * data)
-{
-    Fl_Slider * sb = static_cast<Fl_Slider*>(widget);
-    BlaHexDisplay * my = static_cast<BlaHexDisplay*>(data);
-
-    my->setFirstDisplayedLine(static_cast<bla::s64>(sb->value()));
-    my->ensureSelectionInView();
-    my->redraw();
-}
 
 BlaxorApp::BlaxorApp()
 {
@@ -40,11 +31,6 @@ BlaxorApp::BlaxorApp()
 BlaxorApp::~BlaxorApp()
 {
     delete m_win;
-}
-
-static bool null_or_empty_str(const char * str)
-{
-    return str == 0x0 || std::strlen(str) == 0;
 }
 
 bool BlaxorApp::openFile(const char * fname)
@@ -62,51 +48,9 @@ bool BlaxorApp::openFile(const char * fname)
     return true;
 }
 
-const double kBoxLabelUpdateTimeout = 1.0;
 const int kScrollbarWidth = 20;
 const int kBoxInitialHeight = 50;
 const int kInputInitialHeight = 30;
-
-static void update_label_to(void * data)
-{
-    BlaxorApp * app = static_cast<BlaxorApp*>(data);
-    app->refreshBox();
-    Fl::repeat_timeout(kBoxLabelUpdateTimeout, &update_label_to, data);
-}
-
-static void myfiledropcb(void * udata, const char * fname)
-{
-    BlaxorApp * app = static_cast<BlaxorApp*>(udata);
-    app->openFile(fname);
-}
-
-static void inputcb(Fl_Widget * w, void * udata)
-{
-    Fl_Input * input = static_cast<Fl_Input*>(w);
-    BlaxorApp * app = static_cast<BlaxorApp*>(udata);
-    app->findNext(input->value());
-}
-
-static void update_label_cb(Fl_Widget * w, void * udata)
-{
-    (void)w;
-    BlaxorApp * app = static_cast<BlaxorApp*>(udata);
-    app->refreshBox();
-}
-
-static void openfilebuttoncb(Fl_Widget * w, void * udata)
-{
-    Fl_Native_File_Chooser chooser;
-    chooser.title("Choose a File...");
-    chooser.type(Fl_Native_File_Chooser::BROWSE_FILE);
-    const int s = chooser.show();
-    //TODO: handle -1 (error, reason in errmsg()) and 1 (cancel)?
-    if(s == 0)
-    {
-        BlaxorApp * app = static_cast<BlaxorApp*>(udata);
-        app->openFile(chooser.filename());
-    }
-}
 
 void BlaxorApp::setupGui()
 {
@@ -199,45 +143,6 @@ void BlaxorApp::findNext(const char * text)
     }
 }
 
-static int utf8ByteLenHere(BlaFile& file, bla::s64 start, int maxchars, bool * gotmore)
-{
-    if(gotmore)
-        *gotmore = false;
-
-    bla::u32 state = 0u;
-    bla::u32 codep = 0u;
-
-    int ret = 0;
-    int accepted = 0;
-    bla::s64 i = start;
-    while(true)
-    {
-        if(!file.goodIndex(i))
-            return ret;
-
-        utf8dfa::decode(&state, &codep, file.getByte(i));
-
-        if(state == utf8dfa::kRejectState)
-            return ret;
-
-        if(state == utf8dfa::kAcceptState)
-        {
-            ++accepted;
-            if(accepted == maxchars)
-            {
-                if(gotmore)
-                    *gotmore = true;
-
-                return ret;
-            }
-
-            ret = static_cast<int>(i - start) + 1;
-        }//if
-
-        ++i;
-    }//while true
-}
-
 static std::string getMaxUtf8At(BlaFile& file, bla::s64 start, int maxchars, bool * gotmore)
 {
     int back = 0;
@@ -251,26 +156,6 @@ static std::string getMaxUtf8At(BlaFile& file, bla::s64 start, int maxchars, boo
         ret.push_back(static_cast<char>(file.getByte(start + i)));
 
     return ret;
-}
-
-static unsigned utf8Here(BlaFile& file, bla::s64 start, int * offset)
-{
-    bla::u32 codepoint = 0u;
-    for(int i = 0; i < 4; ++i)
-    {
-        if(hasUtf8Here(file, start - i, i + 1, &codepoint))
-        {
-            if(offset)
-                *offset = i;
-
-            return codepoint;
-        }//if
-    }//for
-
-    if(offset)
-        *offset = 0;
-
-    return 0u;
 }
 
 static std::string firstLine(const std::string& str)
@@ -377,5 +262,5 @@ void BlaxorApp::setWinTitle(const std::string& title)
 {
     m_wintitle = "Blaxor: " + title;
     if(m_win)
-        m_win->label(m_wintitle.c_str());
+        m_win->copy_label(m_wintitle.c_str());
 }

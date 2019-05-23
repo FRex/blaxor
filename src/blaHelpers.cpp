@@ -38,6 +38,11 @@ void byteToBinaryString(bla::byte b, char * out)
     out[8] = '\0';
 }
 
+bool null_or_empty_str(const char * str)
+{
+    return (str == 0x0) || (std::strlen(str) == 0u);
+}
+
 bool isUtf8SequenceHere(BlaFile& file, bla::s64 start, int * back)
 {
     bla::u32 codepoint = 0u;
@@ -89,4 +94,63 @@ int utf8CodepointLen(const char * str)
     }//while
 
     return ret;
+}
+
+int utf8ByteLenHere(BlaFile& file, bla::s64 start, int maxchars, bool * gotmore)
+{
+    if(gotmore)
+        *gotmore = false;
+
+    bla::u32 state = 0u;
+    bla::u32 codep = 0u;
+
+    int ret = 0;
+    int accepted = 0;
+    bla::s64 i = start;
+    while(true)
+    {
+        if(!file.goodIndex(i))
+            return ret;
+
+        utf8dfa::decode(&state, &codep, file.getByte(i));
+
+        if(state == utf8dfa::kRejectState)
+            return ret;
+
+        if(state == utf8dfa::kAcceptState)
+        {
+            ++accepted;
+            if(accepted == maxchars)
+            {
+                if(gotmore)
+                    *gotmore = true;
+
+                return ret;
+            }
+
+            ret = static_cast<int>(i - start) + 1;
+        }//if
+
+        ++i;
+    }//while true
+}
+
+unsigned utf8Here(BlaFile& file, bla::s64 start, int * offset)
+{
+    bla::u32 codepoint = 0u;
+    for(int i = 0; i < 4; ++i)
+    {
+        if(hasUtf8Here(file, start - i, i + 1, &codepoint))
+        {
+            if(offset)
+                *offset = i;
+
+            return codepoint;
+        }//if
+    }//for
+
+    if(offset)
+        *offset = 0;
+
+    return 0u;
 }
