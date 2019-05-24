@@ -82,7 +82,7 @@ void BlaxorApp::setupGui()
     m_display->setFile(&m_file);
     m_display->recalculateMetrics();
     m_display->setLineScrollbar(m_slider);
-    m_slider->callback(mycallback, m_display);
+    m_slider->callback(scroll_display_cb, m_display);
     hideInputIfTooBigFile();
     m_win->show(); //win->show(argc, argv);
     enableFileDropOnWindow(m_win, myfiledropcb, this);

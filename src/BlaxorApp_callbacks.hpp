@@ -4,7 +4,7 @@ const double kBoxLabelUpdateTimeout = 1.0;
 
 class Fl_Widget;
 
-void mycallback(Fl_Widget * widget, void * data);
+void scroll_display_cb(Fl_Widget * widget, void * data);
 void update_label_to(void * data);
 void myfiledropcb(void * udata, const char * fname);
 void inputcb(Fl_Widget * w, void * udata);

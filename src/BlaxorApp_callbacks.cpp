@@ -7,7 +7,7 @@
 #include <FL/Fl.H>
 #include <FL/Fl_Native_File_Chooser.H>
 
-void mycallback(Fl_Widget * widget, void * data)
+void scroll_display_cb(Fl_Widget * widget, void * data)
 {
     Fl_Slider * sb = static_cast<Fl_Slider*>(widget);
     BlaHexDisplay * my = static_cast<BlaHexDisplay*>(data);
