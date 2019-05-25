@@ -24,13 +24,13 @@ void update_label_to(void * data)
     Fl::repeat_timeout(kBoxLabelUpdateTimeout, &update_label_to, data);
 }
 
-void myfiledropcb(void * udata, const char * fname)
+void file_drop_cb(void * udata, const char * fname)
 {
     BlaxorApp * app = static_cast<BlaxorApp*>(udata);
     app->openFile(fname);
 }
 
-void inputcb(Fl_Widget * w, void * udata)
+void search_input_cb(Fl_Widget * w, void * udata)
 {
     Fl_Input * input = static_cast<Fl_Input*>(w);
     BlaxorApp * app = static_cast<BlaxorApp*>(udata);
@@ -44,7 +44,7 @@ void update_label_cb(Fl_Widget * w, void * udata)
     app->refreshBox();
 }
 
-void openfilebuttoncb(Fl_Widget * w, void * udata)
+void open_file_button_cb(Fl_Widget * w, void * udata)
 {
     Fl_Native_File_Chooser chooser;
     chooser.title("Choose a File...");

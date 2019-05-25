@@ -64,7 +64,7 @@ void BlaxorApp::setupGui()
     //top group with resizeable set to box only so that the button won't resize
     m_topgroup = new Fl_Group(0, 0, w, boxh);
     m_button = new Fl_Button(0, 0, boxh, boxh, "@+9fileopen");
-    m_button->callback(&openfilebuttoncb, this);
+    m_button->callback(&open_file_button_cb, this);
     m_box = new BlaBox(boxh, 0, w - boxh, boxh);
     m_box->box(FL_BORDER_BOX);
     Fl::add_timeout(kBoxLabelUpdateTimeout, &update_label_to, this);
@@ -73,7 +73,7 @@ void BlaxorApp::setupGui()
 
     //widgets in main window, with resizeable hex display area
     m_input = new Fl_Input(0, boxh, w, inputh);
-    m_input->callback(&inputcb, this);
+    m_input->callback(&search_input_cb, this);
     m_slider = new Fl_Slider(w - scrollbarw, boxh + inputh, scrollbarw, h - boxh - inputh);
     m_display = new BlaHexDisplay(0, boxh + inputh, w - scrollbarw, h - boxh - inputh);
     m_display->setSelectionChangeCallback(&update_label_cb, this);
@@ -85,7 +85,7 @@ void BlaxorApp::setupGui()
     m_slider->callback(scroll_display_cb, m_display);
     hideInputIfTooBigFile();
     m_win->show(); //win->show(argc, argv);
-    enableFileDropOnWindow(m_win, myfiledropcb, this);
+    enableFileDropOnWindow(m_win, file_drop_cb, this);
     refreshBox();
 }
 
