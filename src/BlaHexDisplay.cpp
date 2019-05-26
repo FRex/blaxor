@@ -21,7 +21,6 @@ void BlaHexDisplay::draw()
         return draw_box(FL_FLAT_BOX, FL_RED);
 
     draw_box();
-    //TODO: some check here that widget is big enough to work
     fl_color(FL_BLACK);
     fl_font(kHexFontFace, m_fontsize);
     const int ymax = fl_height() * m_linesdisplayed;
