@@ -8,6 +8,7 @@
 #include "BlaFile.hpp"
 #include <algorithm>
 #include "blaHelpers.hpp"
+#include <cassert>
 
 BlaHexDisplay::BlaHexDisplay(int x, int y, int w, int h, const char * label) : Fl_Widget(x, y, w, h, label)
 {
@@ -55,33 +56,15 @@ int BlaHexDisplay::handle(int event)
             return 0;
 
         take_focus(); //always take focus if we get mouse clicked on
-        if(eventinrect(x(), y(), m_hexareabox))
-        {
-            //TODO: move this check to a function, and move index calc to a function
-            const int xx = Fl::event_x() - x() - m_hexareabox.x + m_onecharwidth / 2;
-            const int yy = Fl::event_y() - y() - m_hexareabox.y;
-            const int cx = xx / ((m_hexareabox.w + m_onecharwidth) / m_bytesperline);
-            const int cy = yy / ((m_hexareabox.h) / m_linesdisplayed);
-            if(gotByteAt(cx, cy))
-                setSelectedByte(byteIndexAt(cx, cy));
 
-            redraw();
-            return 1;
-        }
+        if(eventinrect(x(), y(), m_hexareabox))
+            if(selectByteInBoxOnPushEvent(m_hexareabox, m_onecharwidth / 2, m_onecharwidth))
+                redraw();
 
         if(eventinrect(x(), y(), m_charareabox))
-        {
-            //TODO: move this check to a function, and move index calc to a function
-            const int xx = Fl::event_x() - x() - m_charareabox.x;
-            const int yy = Fl::event_y() - y() - m_charareabox.y;
-            const int cx = xx / (m_charareabox.w / m_bytesperline);
-            const int cy = yy / (m_charareabox.h / m_linesdisplayed);
-            if(gotByteAt(cx, cy))
-                setSelectedByte(byteIndexAt(cx, cy));
+            if(selectByteInBoxOnPushEvent(m_charareabox, 0, 0))
+                redraw();
 
-            redraw();
-            return 1;
-        }
         return 1; //always consume mouse push done into this widget
     case FL_FOCUS:
         //printf("FL_FOCUS\n");
@@ -502,6 +485,27 @@ void BlaHexDisplay::setColorForByteDraw(bla::byte b, bla::s64 idx)
         else
             fl_color(FL_BLACK);
     }
+}
+
+bool BlaHexDisplay::selectByteInBoxOnPushEvent(const BlaIntRect& r, int xadd, int wadd)
+{
+    assert(Fl::event() == FL_PUSH);
+    if(Fl::event() != FL_PUSH)
+        return false;
+
+    //local xy
+    const int xx = Fl::event_x() - x() - r.x + xadd;
+    const int yy = Fl::event_y() - y() - r.y;
+
+    //cell xy
+    const int cx = xx / ((r.w + wadd) / m_bytesperline);
+    const int cy = yy / (r.h / m_linesdisplayed);
+
+    if(!gotByteAt(cx, cy))
+        return false;
+
+    setSelectedByte(byteIndexAt(cx, cy));
+    return true;
 }
 
 void BlaHexDisplay::setFirstDisplayedLine(bla::s64 line)

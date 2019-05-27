@@ -49,6 +49,7 @@ private:
     void ensureScrollbarSize();
 
     void setColorForByteDraw(bla::byte b, bla::s64 idx);
+    bool selectByteInBoxOnPushEvent(const BlaIntRect& r, int xadd, int wadd);
 
     int m_addresschars = 6;
     int m_bytesperline = 15;
