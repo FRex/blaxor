@@ -40,6 +40,12 @@ void BlaHexDisplay::draw()
     //draw_focus();
 }
 
+static bool eventinrect(int x, int y, BlaIntRect r)
+{
+    return Fl::event_inside(x + r.x, y + r.y, r.w, r.h);
+    return false;
+}
+
 int BlaHexDisplay::handle(int event)
 {
     switch(event)
@@ -49,7 +55,7 @@ int BlaHexDisplay::handle(int event)
             return 0;
 
         take_focus(); //always take focus if we get mouse clicked on
-        if(Fl::event_inside(x() + m_hexareabox.x, y() + m_hexareabox.y, m_hexareabox.w, m_hexareabox.h))
+        if(eventinrect(x(), y(), m_hexareabox))
         {
             //TODO: move this check to a function, and move index calc to a function
             const int xx = Fl::event_x() - x() - m_hexareabox.x + m_onecharwidth / 2;
@@ -63,7 +69,7 @@ int BlaHexDisplay::handle(int event)
             return 1;
         }
 
-        if(Fl::event_inside(x() + m_charareabox.x, y() + m_charareabox.y, m_charareabox.w, m_charareabox.h))
+        if(eventinrect(x(), y(), m_charareabox))
         {
             //TODO: move this check to a function, and move index calc to a function
             const int xx = Fl::event_x() - x() - m_charareabox.x;
