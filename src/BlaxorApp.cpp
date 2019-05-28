@@ -59,7 +59,8 @@ void BlaxorApp::setupGui()
     const int scrollbarw = kScrollbarWidth;
     const int boxh = kBoxInitialHeight;
     const int inputh = kInputInitialHeight;
-    m_win = new Fl_Double_Window(w, h, m_wintitle.c_str());
+    m_win = new Fl_Double_Window(w, h, 0x0);
+    m_win->copy_label(m_wintitle.c_str()); //to not store ptr to c_str of m_wintitle
 
     //top group with resizeable set to box only so that the button won't resize
     m_topgroup = new Fl_Group(0, 0, w, boxh);
