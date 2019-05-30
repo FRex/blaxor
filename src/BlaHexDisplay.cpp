@@ -184,7 +184,8 @@ void BlaHexDisplay::drawAddr(int yy)
     char buff[100];
     sprintf(buff, "%0*llX", m_addresschars, bytestart);
 
-    fl_color(FL_BLACK);
+    const bool selline = yy == (m_selectedbyte / m_bytesperline);
+    fl_color(selline ? FL_YELLOW : FL_BLACK);
     fl_draw(buff, xpos, ypos);
 }
 
