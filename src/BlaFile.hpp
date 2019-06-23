@@ -16,9 +16,10 @@ public:
     bool goodIndex(bla::s64 idx) const;
 
 private:
-    bool onFileOpen();
+    void * m_winfile = 0x0;
+    //void * m_maphandle = 0x0;
+    //void * m_mapptr = 0x0;
 
-    std::FILE * m_file = 0x0;
     bla::s64 m_filesize = 0;
     bla::s64 m_readcount = 0;
 

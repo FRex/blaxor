@@ -1,6 +1,7 @@
 #include "blaDefines.hpp"
 #include "BlaFile.hpp"
 #include "osSpecific.hpp"
+#include <Windows.h>
 
 BlaFile::~BlaFile()
 {
@@ -39,21 +40,29 @@ static bla::s64 myftell64(std::FILE * f)
 bool BlaFile::open(const char * fname)
 {
     close();
-    m_file = my_fopen_utf8_rb(fname);
-    if(!m_file)
+    m_winfile = CreateFileW(utf8ToUtf16(fname).c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    if(m_winfile == INVALID_HANDLE_VALUE)
         return false;
 
-    return onFileOpen();
+    LARGE_INTEGER lisize;
+    if(0 == GetFileSizeEx(m_winfile, &lisize))
+    {
+        close();
+        return false;
+    }//0 == get file size ex
+
+    m_filesize = lisize.QuadPart;
+    return true;
 }
 
 void BlaFile::close()
 {
     m_filesize = 0;
     m_readcount = 0;
-    if(m_file)
-        std::fclose(m_file);
+    if(m_winfile && m_winfile != INVALID_HANDLE_VALUE)
+        CloseHandle(m_winfile);
 
-    m_file = 0x0;
+    m_winfile = 0x0;
 }
 
 bla::s64 BlaFile::filesize() const
@@ -67,10 +76,18 @@ bla::byte BlaFile::getByte(bla::s64 pos)
     if(!goodIndex(pos))
         return 0xff;
 
-    bla::byte ret;
-    if(0 == myfseek64(m_file, pos, SEEK_SET))
-        if(1 == fread(&ret, 1, 1, m_file))
-            return ret;
+    LARGE_INTEGER goal;
+    goal.QuadPart = pos;
+    if(!SetFilePointerEx(m_winfile, goal, NULL, FILE_BEGIN))
+        return 0xff;
+
+    bla::byte ret = 0xff;
+    DWORD readcount;
+    if(!ReadFile(m_winfile, &ret, 1, &readcount, NULL))
+        return 0xff;
+
+    if(readcount == 1)
+        return ret;
 
     return 0xff;
 }
@@ -83,28 +100,4 @@ bla::s64 BlaFile::readcount() const
 bool BlaFile::goodIndex(bla::s64 idx) const
 {
     return (0 <= idx) && (idx < m_filesize);
-}
-
-bool BlaFile::onFileOpen()
-{
-    if(0 == myfseek64(m_file, 0, SEEK_END))
-    {
-        const bla::s64 s = static_cast<bla::s64>(myftell64(m_file));
-        if(s >= 0)
-        {
-            m_filesize = s;
-        }
-        else
-        {
-            close();
-            return false;
-        }
-    }
-    else
-    {
-        close();
-        return false;
-    }
-
-    return true;
 }
