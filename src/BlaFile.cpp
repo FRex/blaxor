@@ -52,6 +52,8 @@ void BlaFile::close()
     m_readcount = 0;
     if(m_file)
         std::fclose(m_file);
+
+    m_file = 0x0;
 }
 
 bla::s64 BlaFile::filesize() const
