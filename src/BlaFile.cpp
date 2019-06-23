@@ -8,6 +8,8 @@ BlaFile::~BlaFile()
     close();
 }
 
+const bla::s64 kFilesizeSafeToMemMap = 10 * 1024 * 1024;
+
 bool BlaFile::open(const char * fname)
 {
     close();
@@ -23,6 +25,14 @@ bool BlaFile::open(const char * fname)
     }//0 == get file size ex
 
     m_filesize = lisize.QuadPart;
+
+    if(m_filesize <= kFilesizeSafeToMemMap)
+    {
+        m_maphandle = CreateFileMappingW(m_winfile, NULL, PAGE_READONLY, 0, 0, NULL);
+        if(m_maphandle)
+            m_mapptr = MapViewOfFile(m_maphandle, FILE_MAP_READ, 0, 0, 0);
+    }
+
     return true;
 }
 
@@ -83,4 +93,9 @@ bla::s64 BlaFile::readcount() const
 bool BlaFile::goodIndex(bla::s64 idx) const
 {
     return (0 <= idx) && (idx < m_filesize);
+}
+
+const bla::byte * BlaFile::getPtr() const
+{
+    return static_cast<bla::byte*>(m_mapptr);
 }

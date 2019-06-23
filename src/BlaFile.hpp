@@ -14,6 +14,7 @@ public:
     bla::byte getByte(bla::s64 pos);
     bla::s64 readcount() const;
     bool goodIndex(bla::s64 idx) const;
+    const bla::byte * getPtr() const;
 
 private:
     void * m_winfile = 0x0;
