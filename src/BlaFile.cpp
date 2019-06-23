@@ -8,35 +8,6 @@ BlaFile::~BlaFile()
     close();
 }
 
-static std::FILE * my_fopen_utf8_rb(const char * fname)
-{
-#ifdef BLA_WINDOWS
-    return _wfopen(utf8ToUtf16(fname).c_str(), L"rb");
-#else
-    return std::fopen(fname, "rb");
-#endif
-}
-
-static int myfseek64(std::FILE * f, bla::s64 off, int from)
-{
-#ifdef BLA_WINDOWS
-    return _fseeki64(f, off, from);
-#else
-    static_assert(sizeof(__off64_t) == 8, "fseeko64 isn't 64 bit?");
-    return fseeko64(f, off, from);
-#endif
-}
-
-static bla::s64 myftell64(std::FILE * f)
-{
-#ifdef BLA_WINDOWS
-    return _ftelli64(f);
-#else
-    static_assert(sizeof(ftello64(f)) == 8, "ftello64 isn't 64 bit?");
-    return ftello64(f);
-#endif
-}
-
 bool BlaFile::open(const char * fname)
 {
     close();
@@ -59,9 +30,18 @@ void BlaFile::close()
 {
     m_filesize = 0;
     m_readcount = 0;
+
+    if(m_mapptr)
+        UnmapViewOfFile(m_mapptr);
+
+    if(m_maphandle)
+        CloseHandle(m_maphandle);
+
     if(m_winfile && m_winfile != INVALID_HANDLE_VALUE)
         CloseHandle(m_winfile);
 
+    m_mapptr = 0x0;
+    m_maphandle = 0x0;
     m_winfile = 0x0;
 }
 
@@ -75,6 +55,9 @@ bla::byte BlaFile::getByte(bla::s64 pos)
     ++m_readcount;
     if(!goodIndex(pos))
         return 0xff;
+
+    if(m_mapptr)
+        return static_cast<bla::byte*>(m_mapptr)[pos];
 
     LARGE_INTEGER goal;
     goal.QuadPart = pos;

@@ -17,8 +17,8 @@ public:
 
 private:
     void * m_winfile = 0x0;
-    //void * m_maphandle = 0x0;
-    //void * m_mapptr = 0x0;
+    void * m_maphandle = 0x0;
+    void * m_mapptr = 0x0;
 
     bla::s64 m_filesize = 0;
     bla::s64 m_readcount = 0;
