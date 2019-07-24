@@ -3,7 +3,6 @@
 #include <FL/Fl.H>
 #include <FL/Fl_Double_Window.H>
 #include <FL/Fl_Slider.H>
-#include <FL/Fl_Input.H>
 #include <FL/Fl_Button.H>
 #include <FL/Fl_Native_File_Chooser.H>
 #include "BlaHexDisplay.hpp"
@@ -42,7 +41,6 @@ bool BlaxorApp::openFile(const char * fname)
     if(m_display)
         m_display->recalculateMetrics();
 
-    hideInputIfTooBigFile();
     refreshBox();
     redrawAll();
     return true;
@@ -50,7 +48,6 @@ bool BlaxorApp::openFile(const char * fname)
 
 const int kScrollbarWidth = 20;
 const int kBoxInitialHeight = 50;
-const int kInputInitialHeight = 30;
 
 void BlaxorApp::setupGui()
 {
@@ -58,7 +55,6 @@ void BlaxorApp::setupGui()
     const int h = 600;
     const int scrollbarw = kScrollbarWidth;
     const int boxh = kBoxInitialHeight;
-    const int inputh = kInputInitialHeight;
     m_win = new Fl_Double_Window(w, h, 0x0);
     m_win->copy_label(m_wintitle.c_str()); //to not store ptr to c_str of m_wintitle
 
@@ -73,10 +69,8 @@ void BlaxorApp::setupGui()
     m_topgroup->end();
 
     //widgets in main window, with resizeable hex display area
-    m_input = new Fl_Input(0, boxh, w, inputh);
-    m_input->callback(&search_input_cb, this);
-    m_slider = new Fl_Slider(w - scrollbarw, boxh + inputh, scrollbarw, h - boxh - inputh);
-    m_display = new BlaHexDisplay(0, boxh + inputh, w - scrollbarw, h - boxh - inputh);
+    m_slider = new Fl_Slider(w - scrollbarw, boxh, scrollbarw, h - boxh);
+    m_display = new BlaHexDisplay(0, boxh, w - scrollbarw, h - boxh);
     m_display->setSelectionChangeCallback(&update_label_cb, this);
     m_win->resizable(m_display);
     m_display->take_focus();
@@ -84,7 +78,6 @@ void BlaxorApp::setupGui()
     m_display->recalculateMetrics();
     m_display->setLineScrollbar(m_slider);
     m_slider->callback(scroll_display_cb, m_display);
-    hideInputIfTooBigFile();
     m_win->show(); //win->show(argc, argv);
     enableFileDropOnWindow(m_win, file_drop_cb, this);
     refreshBox();
@@ -96,12 +89,10 @@ void BlaxorApp::setBoxHeight(int newh)
     const int h = m_win->h();
     const int scrollbarw = kScrollbarWidth;
     const int boxh = newh;
-    const int inputh = kInputInitialHeight;
 
     m_box->size(w, boxh);
-    m_input->resize(0, boxh, w, inputh);
-    m_display->resize(0, boxh + inputh, w - scrollbarw, h - boxh - inputh);
-    m_slider->resize(w - scrollbarw, boxh + inputh, scrollbarw, h - boxh - inputh);
+    m_display->resize(0, boxh, w - scrollbarw, h - boxh);
+    m_slider->resize(w - scrollbarw, boxh, scrollbarw, h - boxh);
 
     redrawAll();
 }
@@ -226,37 +217,10 @@ void BlaxorApp::refreshBox()
 
 void BlaxorApp::redrawAll()
 {
-    Fl_Widget * ws[] = { m_box, m_display, m_input, m_slider, m_button, m_topgroup };
+    Fl_Widget * ws[] = { m_box, m_display, m_slider, m_button, m_topgroup };
     for(auto w : ws)
         if(w)
             w->redraw();
-}
-
-void BlaxorApp::hideInputIfTooBigFile()
-{
-    if(!m_input)
-        return;
-
-    const int w = m_win->w();
-    const int h = m_win->h();
-    const int scrollbarw = kScrollbarWidth;
-    const int boxh = kBoxInitialHeight;
-    const int inputh = kInputInitialHeight;
-    if(m_file.filesize() > kMaxSearchableFileSize)
-    {
-        m_input->hide();
-        m_slider->resize(w - scrollbarw, boxh, scrollbarw, h - boxh);
-        m_display->resize(0, boxh, w - scrollbarw, h - boxh);
-    }
-    else
-    {
-        m_input->show();
-        m_slider->resize(w - scrollbarw, boxh + inputh, scrollbarw, h - boxh - inputh);
-        m_display->resize(0, boxh + inputh, w - scrollbarw, h - boxh - inputh);
-    }
-
-    m_display->recalculateMetrics();
-    redrawAll();
 }
 
 void BlaxorApp::setWinTitle(const std::string& title)

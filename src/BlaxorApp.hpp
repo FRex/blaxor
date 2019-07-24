@@ -7,7 +7,6 @@ class Fl_Double_Window;
 class BlaHexDisplay;
 class BlaBox;
 class Fl_Slider;
-class Fl_Input;
 class Fl_Button;
 class Fl_Group;
 
@@ -24,7 +23,6 @@ public:
 
 private:
     void redrawAll();
-    void hideInputIfTooBigFile();
     void setWinTitle(const std::string& title);
 
     BlaFile m_file;
@@ -33,7 +31,6 @@ private:
     BlaBox * m_box = 0x0;
     BlaHexDisplay * m_display = 0x0;
     Fl_Slider * m_slider = 0x0;
-    Fl_Input * m_input = 0x0;
     Fl_Button * m_button = 0x0;
     Fl_Group * m_topgroup = 0x0;
 

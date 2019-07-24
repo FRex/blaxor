@@ -1,6 +1,7 @@
 #pragma once
 #include <FL/Fl_Widget.H>
 #include "blatype.hpp"
+#include <string>
 
 class BlaFile;
 
@@ -39,6 +40,7 @@ private:
     void drawAddr(int yy);
     void drawHex(int xx, int yy);
     void drawChar(int xx, int yy);
+    void drawBottomText();
 
     bla::s64 byteIndexAt(int xx, int yy) const;
     bla::byte getByteAt(int xx, int yy) const;
@@ -70,5 +72,7 @@ private:
     int m_fontsize = 16;
     bool m_binary = false;
     bool m_toosmall = true;
+    std::string m_bottomtext;
+    bool m_enteringbottomtext = false;
 
 };

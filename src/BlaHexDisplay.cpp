@@ -38,6 +38,7 @@ void BlaHexDisplay::draw()
         }//for i
     }//for j
 
+    drawBottomText();
     //draw_focus();
 }
 
@@ -87,6 +88,30 @@ int BlaHexDisplay::handle(int event)
             return 1;
         }//switch event key
 
+        if(m_enteringbottomtext)
+        {
+            if(Fl::event_key() == FL_Enter)
+            {
+                m_enteringbottomtext = false;
+                //TODO: impl this search!
+                printf("TODO: SEARCH FOR: %s\n", m_bottomtext.c_str());
+                redraw();
+                return 1;
+            }
+
+            //TODO: filter ascii control vals out here and on escape cancel input (replace escape global handler too)!!
+            if(Fl::event_text())
+            {
+                m_bottomtext += Fl::event_text();
+                redraw();
+                return 1;
+            }
+            else
+            {
+                return 0;
+            }
+        }
+
         if(0 == std::strcmp("+", Fl::event_text()))
         {
             ++m_fontsize;
@@ -109,6 +134,14 @@ int BlaHexDisplay::handle(int event)
         {
             m_binary = !m_binary;
             recalculateMetrics();
+            redraw();
+            return 1;
+        }
+
+        if(0 == std::strcmp("/", Fl::event_text()))
+        {
+            m_bottomtext = "/";
+            m_enteringbottomtext = true;
             redraw();
             return 1;
         }
@@ -237,6 +270,23 @@ void BlaHexDisplay::drawChar(int xx, int yy)
         fl_color(FL_YELLOW);
 
     fl_draw(buff, xpos, ypos);
+}
+
+void BlaHexDisplay::drawBottomText()
+{
+    if(!m_enteringbottomtext)
+        return;
+
+    fl_font(FL_HELVETICA, m_fontsize + m_fontsize / 2);
+    const int xpos = x();
+    const int ypos = y() + h();
+
+    const int xx = bla_text_width(m_bottomtext.c_str());
+    const int yy = bla_text_height(m_bottomtext.c_str());
+
+    fl_draw_box(FL_FLAT_BOX, xpos, ypos - yy, xx, yy, FL_WHITE);
+    fl_color(FL_BLACK);
+    fl_draw(m_bottomtext.c_str(), xpos, ypos);
 }
 
 bla::s64 BlaHexDisplay::byteIndexAt(int xx, int yy) const
