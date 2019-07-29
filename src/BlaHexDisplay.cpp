@@ -93,8 +93,7 @@ int BlaHexDisplay::handle(int event)
             if(Fl::event_key() == FL_Enter)
             {
                 m_enteringbottomtext = false;
-                //TODO: impl this search!
-                printf("TODO: SEARCH FOR: %s\n", m_bottomtext.c_str());
+                searchForBottomText();
                 redraw();
                 return 1;
             }
@@ -378,31 +377,10 @@ void BlaHexDisplay::attemptSelectionMove(int event, bool ctrldown)
 
     if(event == FL_End && ctrldown)
     {
-        newselection =  std::max<bla::s64>(0, m_file->filesize() - 1);
+        newselection = std::max<bla::s64>(0, m_file->filesize() - 1);
     }
 
-    if(newselection != m_selectedbyte)
-    {
-        const bla::s64 oldline = m_selectedbyte / m_bytesperline;
-        setSelectedByte(newselection);
-        redraw();
-        if(m_linescrollbar)
-        {
-            const bla::s64 newline = m_selectedbyte / m_bytesperline;
-
-            if(newline < m_firstdisplayedline)
-            {
-                m_linescrollbar->value(static_cast<double>(newline));
-                m_linescrollbar->do_callback();
-            }
-
-            if(newline >= m_firstdisplayedline + m_linesdisplayed)
-            {
-                m_linescrollbar->value(static_cast<double>(newline - m_linesdisplayed + 1));
-                m_linescrollbar->do_callback();
-            }
-        }//if m_linescrollbar
-    }
+    setSelectedByteAndMoveView(newselection);
 }
 
 //helper to calculate amount of hex digit to display any byte's position in a file
@@ -557,6 +535,78 @@ bool BlaHexDisplay::selectByteInBoxOnPushEvent(const BlaIntRect& r, int xadd, in
 
     setSelectedByte(byteIndexAt(cx, cy));
     return true;
+}
+
+//TODO: for 1 char needle use memchr
+static const void * mymemmem(const void * h, size_t hs, const void * n, size_t ns)
+{
+    if(ns == 0u)
+        return h;
+
+    while(ns <= hs)
+    {
+        if(0 == std::memcmp(h, n, ns))
+            return h;
+
+        --hs;
+        h = static_cast<const char*>(h) + 1;
+    }//while
+
+    return 0x0;
+}
+
+//TODO: optimize clean up and make sure it's totally correct
+void BlaHexDisplay::searchForBottomText()
+{
+    if(!m_file)
+        return;
+
+    const char * s = m_bottomtext.c_str();
+    if(s[0] != '/')
+        return;
+
+    s = s + 1;
+    const size_t sl = std::strlen(s);
+    if(sl == 0u)
+        return;
+
+    const bla::byte * f = m_file->getPtr();
+    const bla::s64 fl = m_file->filesize();
+    if(!f || m_file->filesize() > 10 * 1024 * 1024)
+        return;
+
+    const void * x = mymemmem(f + m_selectedbyte, static_cast<size_t>(fl - m_selectedbyte), s, sl);
+    if(!x)
+        x = mymemmem(f, static_cast<size_t>(fl), s, sl); //inefficient!
+
+    if(x)
+        setSelectedByteAndMoveView(static_cast<const bla::byte*>(x) - f);
+}
+
+void BlaHexDisplay::setSelectedByteAndMoveView(bla::s64 byteidx)
+{
+    if(byteidx == m_selectedbyte)
+        return;
+
+    const bla::s64 oldline = m_selectedbyte / m_bytesperline;
+    setSelectedByte(byteidx);
+    redraw();
+    if(m_linescrollbar)
+    {
+        const bla::s64 newline = m_selectedbyte / m_bytesperline;
+
+        if(newline < m_firstdisplayedline)
+        {
+            m_linescrollbar->value(static_cast<double>(newline));
+            m_linescrollbar->do_callback();
+        }
+
+        if(newline >= m_firstdisplayedline + m_linesdisplayed)
+        {
+            m_linescrollbar->value(static_cast<double>(newline - m_linesdisplayed + 1));
+            m_linescrollbar->do_callback();
+        }
+    }//if m_linescrollbar
 }
 
 void BlaHexDisplay::setFirstDisplayedLine(bla::s64 line)

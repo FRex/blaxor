@@ -53,6 +53,9 @@ private:
     void setColorForByteDraw(bla::byte b, bla::s64 idx);
     bool selectByteInBoxOnPushEvent(const BlaIntRect& r, int xadd, int wadd);
 
+    void searchForBottomText();
+    void setSelectedByteAndMoveView(bla::s64 byteidx);
+
     int m_addresschars = 6;
     int m_bytesperline = 15;
     int m_padding = 4;
