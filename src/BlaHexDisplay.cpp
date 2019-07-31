@@ -583,13 +583,15 @@ static const void * mymemmem(const void * h, size_t hs, const void * n, size_t n
     if(ns == 0u)
         return h;
 
+    const unsigned char * hh = static_cast<const unsigned char*>(h);
+    const unsigned char firstbyte = *static_cast<const unsigned char*>(n);
     while(ns <= hs)
     {
-        if(0 == std::memcmp(h, n, ns))
-            return h;
+        if(*hh == firstbyte && 0 == std::memcmp(hh, n, ns))
+            return hh;
 
         --hs;
-        h = static_cast<const char*>(h) + 1;
+        ++hh;
     }//while
 
     return 0x0;
