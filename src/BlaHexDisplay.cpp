@@ -48,6 +48,26 @@ static bool eventinrect(int x, int y, BlaIntRect r)
     return false;
 }
 
+static bool isUtf8ContinuationChar(char c)
+{
+    const int cc = static_cast<unsigned char>(c);
+    return 2 == (cc >> 6);
+}
+
+//TODO: asserts for UTF-8 consistency just in case?
+static std::string stripOneUtf8FromEnd(std::string s)
+{
+    //pop all the utf-8 continuation bytes off first, maybe none if last char is ascii...
+    while(s.length() > 0u && isUtf8ContinuationChar(s.back()))
+        s.pop_back();
+
+    //...now pop one more off, the utf-8 starting byte, or the ascii
+    if(s.length() > 0u)
+        s.pop_back();
+
+    return s;
+}
+
 int BlaHexDisplay::handle(int event)
 {
     switch(event)
@@ -86,6 +106,14 @@ int BlaHexDisplay::handle(int event)
         case FL_End:
             attemptSelectionMove(Fl::event_key(), Fl::event_state(FL_CTRL) != 0);
             return 1;
+        case FL_BackSpace:
+            if(m_enteringbottomtext && m_bottomtext.length() > 0u && m_bottomtext != "/")
+            {
+                m_bottomtext = stripOneUtf8FromEnd(m_bottomtext);
+                redraw();
+            }
+            return 1;
+        break;
         }//switch event key
 
         if(m_enteringbottomtext)
@@ -98,10 +126,14 @@ int BlaHexDisplay::handle(int event)
                 return 1;
             }
 
-            //TODO: filter ascii control vals out here and on escape cancel input (replace escape global handler too)!!
             if(Fl::event_text())
             {
-                m_bottomtext += Fl::event_text();
+                const std::string s = Fl::event_text();
+                const auto oldlen = m_bottomtext.length();
+                for(char c : s)
+                    if(!(0 < c && c < ' ')) //no ascii under space, negative is okay for utf-8 with signed char
+                        m_bottomtext += c;
+
                 redraw();
                 return 1;
             }
