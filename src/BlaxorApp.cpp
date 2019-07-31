@@ -57,6 +57,7 @@ void BlaxorApp::setupGui()
     const int boxh = kBoxInitialHeight;
     m_win = new Fl_Double_Window(w, h, 0x0);
     m_win->copy_label(m_wintitle.c_str()); //to not store ptr to c_str of m_wintitle
+    //m_win->callback(&double_window_ignore_escape_cb); //TODO: uncomment this when escape is more used in prog itself
 
     //top group with resizeable set to box only so that the button won't resize
     m_topgroup = new Fl_Group(0, 0, w, boxh);

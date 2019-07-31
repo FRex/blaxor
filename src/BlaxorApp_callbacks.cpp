@@ -6,6 +6,7 @@
 #include <FL/Fl_Input.H>
 #include <FL/Fl.H>
 #include <FL/Fl_Native_File_Chooser.H>
+#include <FL/Fl_Double_Window.H>
 
 void scroll_display_cb(Fl_Widget * widget, void * data)
 {
@@ -56,4 +57,15 @@ void open_file_button_cb(Fl_Widget * w, void * udata)
         BlaxorApp * app = static_cast<BlaxorApp*>(udata);
         app->openFile(chooser.filename());
     }
+}
+
+void double_window_ignore_escape_cb(Fl_Widget * w, void * udata)
+{
+    //callback like FLTK tutorial/docs say to use to not have escape close main window
+    if(Fl::event() == FL_SHORTCUT && Fl::event_key() == FL_Escape)
+        return;
+
+    Fl_Double_Window * win = static_cast<Fl_Double_Window*>(w);
+    win->hide();
+    Fl_Widget::default_callback(win, udata); // put on Fl::read_queue() ???
 }

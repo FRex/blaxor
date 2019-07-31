@@ -10,3 +10,4 @@ void file_drop_cb(void * udata, const char * fname);
 void search_input_cb(Fl_Widget * w, void * udata);
 void update_label_cb(Fl_Widget * w, void * udata);
 void open_file_button_cb(Fl_Widget * w, void * udata);
+void double_window_ignore_escape_cb(Fl_Widget * w, void * udata);
