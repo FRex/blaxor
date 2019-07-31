@@ -113,6 +113,14 @@ int BlaHexDisplay::handle(int event)
                 redraw();
             }
             return 1;
+        case FL_Escape:
+            if(m_enteringbottomtext)
+            {
+                m_enteringbottomtext = false;
+                m_bottomtext.clear();
+                redraw();
+            }
+            return 1;
         break;
         }//switch event key
 
