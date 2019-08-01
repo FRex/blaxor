@@ -606,8 +606,6 @@ static bool searchableFile(const BlaFile * file)
 void BlaHexDisplay::searchForBottomText()
 {
     if(!searchableFile(m_file) || m_bottomtext.length() < 2u || m_bottomtext[0] != '/')
-
-    if(!m_file)
         return;
 
     const char * sp = m_bottomtext.c_str() + 1;
