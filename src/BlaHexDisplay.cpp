@@ -597,29 +597,28 @@ static const void * mymemmem(const void * h, size_t hs, const void * n, size_t n
     return 0x0;
 }
 
+static bool searchableFile(const BlaFile * file)
+{
+    return file && file->getPtr() && (file->filesize() < 100 * 1024 * 1024);
+}
+
 //TODO: optimize clean up and make sure it's totally correct
 void BlaHexDisplay::searchForBottomText()
 {
+    if(!searchableFile(m_file) || m_bottomtext.length() < 2u || m_bottomtext[0] != '/')
+
     if(!m_file)
         return;
 
-    const char * s = m_bottomtext.c_str();
-    if(s[0] != '/')
-        return;
-
-    s = s + 1;
-    const size_t sl = std::strlen(s);
-    if(sl == 0u)
-        return;
+    const char * sp = m_bottomtext.c_str() + 1;
+    const size_t sl = m_bottomtext.length() - 1;
 
     const bla::byte * f = m_file->getPtr();
     const bla::s64 fl = m_file->filesize();
-    if(!f || m_file->filesize() > 10 * 1024 * 1024)
-        return;
 
-    const void * x = mymemmem(f + m_selectedbyte, static_cast<size_t>(fl - m_selectedbyte), s, sl);
+    const void * x = mymemmem(f + m_selectedbyte, static_cast<size_t>(fl - m_selectedbyte), sp, sl);
     if(!x)
-        x = mymemmem(f, static_cast<size_t>(fl), s, sl); //inefficient!
+        x = mymemmem(f, static_cast<size_t>(fl), sp, sl); //inefficient!
 
     if(x)
         setSelectedByteAndMoveView(static_cast<const bla::byte*>(x) - f);

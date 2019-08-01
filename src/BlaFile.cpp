@@ -8,7 +8,7 @@ BlaFile::~BlaFile()
     close();
 }
 
-const bla::s64 kFilesizeSafeToMemMap = 10 * 1024 * 1024;
+const bla::s64 kFilesizeSafeToMemMap = 100 * 1024 * 1024;
 
 bool BlaFile::open(const char * fname)
 {
