@@ -8,6 +8,7 @@
 
 #ifdef BLA_LINUX
 #include <sys/types.h>
+#include <sys/mman.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <errno.h>
@@ -21,6 +22,10 @@ BlaFile::~BlaFile()
 }
 
 const bla::s64 kFilesizeSafeToMemMap = 100 * 1024 * 1024;
+
+//just to be sure to not try map a too big file and then do something with that ptr and to
+//make it fit in 32-bit signed/unsigned var easily, in case of size_t in mmap on 32-bit Linux, etc.
+static_assert(kFilesizeSafeToMemMap < 1024 * 1024 * 1024, "kFilesizeSafeToMemMap is not smaller than 1 GiB");
 
 bool BlaFile::open(const char * fname)
 {
@@ -40,6 +45,7 @@ bool BlaFile::open(const char * fname)
 
     m_filesize = lisize.QuadPart;
 
+    //try to memory map small files, this is okay to fail and jutt use file handle from there on!
     if(m_filesize <= kFilesizeSafeToMemMap)
     {
         m_maphandle = CreateFileMappingW(m_winfile, NULL, PAGE_READONLY, 0, 0, NULL);
@@ -70,6 +76,20 @@ bool BlaFile::open(const char * fname)
     }//if fstat m_fd mystat != 0
 
     m_filesize = static_cast<bla::s64>(mystat.st_size);
+
+    //try mmap small files, this is okay to fail and just keep using the fd!
+    if(m_filesize <= kFilesizeSafeToMemMap)
+    {
+        //TODO: add MAP_POPULATE to MAP_PRIVATE here later?
+        m_mapptr = mmap(0x0, static_cast<size_t>(m_filesize), PROT_READ, MAP_PRIVATE, m_fd, 0);
+        if(m_mapptr == MAP_FAILED)
+        {
+            m_mapptr = 0x0;
+            fprintf(stderr, "FAIL: call mmap(0x0, %lld, PROT_READ, 0, %d, 0); failed, errno = %d\n",
+                m_filesize, m_fd, errno);
+        }//if mmapptr == map failed
+    }
+
     return true;
 #endif //BLA_LINUX
 
@@ -78,10 +98,7 @@ bool BlaFile::open(const char * fname)
 
 void BlaFile::close()
 {
-    m_filesize = 0;
-    m_readcount = 0;
-
-#ifdef BLA_WINDOWS
+    #ifdef BLA_WINDOWS
     if(m_mapptr)
         UnmapViewOfFile(m_mapptr);
 
@@ -97,16 +114,27 @@ void BlaFile::close()
 #endif //BLA_WINDOWS
 
 #ifdef BLA_LINUX
+    if(m_mapptr)
+    {
+        if(munmap(m_mapptr, static_cast<size_t>(m_filesize)))
+            fprintf(stderr, "FAIL: call munmap(%p, %lld); failed, errno = %d\n", m_mapptr, m_filesize, errno);
+
+        m_mapptr = 0x0; //leaking the memmapping but above should never happen..? TODO: 'fix' later?
+    }
+
     if(m_fd)
     {
         const int r = ::close(m_fd);
         if(r)
-            fprintf(stderr, "FAIL: call ::close(m_fd); failed, errno = %d", errno);
+            fprintf(stderr, "FAIL: call ::close(m_fd); failed, errno = %d\n", errno);
 
         m_fd = 0; //leaking FD but above never happens since we read only? TODO: 'fix' later?
     } //if m fd
 #endif //BLA_LINUX
 
+    //at end since munmap uses m_filesize
+    m_filesize = 0;
+    m_readcount = 0;
 }
 
 bla::s64 BlaFile::filesize() const
