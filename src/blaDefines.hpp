@@ -13,6 +13,6 @@
 #define BLA_LINUX
 #endif
 
-#ifdef BLA_LINUX && BLA_WINDOWS
+#if (defined(BLA_LINUX) && defined(BLA_WINDOWS))
 #error "LINUX AND WINDOWS BOTH DEFINED AT ONCE"
 #endif
