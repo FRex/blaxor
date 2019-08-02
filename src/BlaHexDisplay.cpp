@@ -597,9 +597,12 @@ static const void * mymemmem(const void * h, size_t hs, const void * n, size_t n
     return 0x0;
 }
 
+//max size of file that we do search on, also has to be mmapped so actual max is min of this and limit of mmap
+const bla::s64 kSearchableFileSize = 100 * 1024 * 1024;
+
 static bool searchableFile(const BlaFile * file)
 {
-    return file && file->getPtr() && (file->filesize() < 100 * 1024 * 1024);
+    return file && file->getPtr() && (file->filesize() < kSearchableFileSize);
 }
 
 //TODO: optimize clean up and make sure it's totally correct
