@@ -6,6 +6,15 @@
 #include <Windows.h>
 #endif //BLA_WINDOWS
 
+#ifdef BLA_LINUX
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <errno.h>
+#include <fcntl.h>
+static_assert(sizeof(off_t) == 8, "sizeof(off_t) != 8");
+#endif //BLA_LINUX
+
 BlaFile::~BlaFile()
 {
     close();
@@ -41,6 +50,29 @@ bool BlaFile::open(const char * fname)
     return true;
 #endif //BLA_WINDOWS
 
+#ifdef BLA_LINUX
+    m_fd = ::open(fname, O_RDONLY);
+    if(m_fd == -1)
+    {
+        m_fd = 0;
+        fprintf(stderr, "FAIL: call ::open('%s', O_RDONLY); failed, errno = %d", fname, errno);
+        return false;
+    }//m fd == -1
+
+    struct stat mystat;
+    if(fstat(m_fd, &mystat) != 0)
+    {
+        fprintf(stderr, "FAIL: call fstat(%d = open('%s', O_RDONLY), &mystat); failed, errno = %d",
+            m_fd, fname, errno);
+
+        close(); //call after above since this ::close inside can fail and set errno too!
+        return false;
+    }//if fstat m_fd mystat != 0
+
+    m_filesize = static_cast<bla::s64>(mystat.st_size);
+    return true;
+#endif //BLA_LINUX
+
     return false;
 }
 
@@ -63,6 +95,17 @@ void BlaFile::close()
     m_maphandle = 0x0;
     m_winfile = 0x0;
 #endif //BLA_WINDOWS
+
+#ifdef BLA_LINUX
+    if(m_fd)
+    {
+        const int r = ::close(m_fd);
+        if(r)
+            fprintf(stderr, "FAIL: call ::close(m_fd); failed, errno = %d", errno);
+
+        m_fd = 0; //leaking FD but above never happens since we read only? TODO: 'fix' later?
+    } //if m fd
+#endif //BLA_LINUX
 
 }
 
@@ -94,6 +137,20 @@ bla::byte BlaFile::getByte(bla::s64 pos)
     if(readcount == 1)
         return ret;
 #endif //BLA_WINDOWS
+
+#ifdef BLA_LINUX
+    if(!m_fd)
+        return 0xff;
+
+    bla::byte ret = 0xff;
+    const ssize_t ok = pread(m_fd, &ret, 1, static_cast<off_t>(pos));
+    if(ok == 1)
+        return ret;
+
+    if(ok == -1)
+        fprintf(stderr, "FAIL: call pread(%d, ptr, 1, static_cast<off_t>(%ldd)) failed, errno = %d",
+            m_fd, pos, errno);
+#endif //BLA_LINUX
 
     return 0xff;
 }

@@ -11,6 +11,7 @@
 
 #ifdef __linux__
 #define BLA_LINUX
+#define _FILE_OFFSET_BITS 64 //supposedly the preferred way to make 32-bit progs use 64-bit off_t?
 #endif
 
 #if (defined(BLA_LINUX) && defined(BLA_WINDOWS))

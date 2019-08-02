@@ -24,7 +24,7 @@ private:
     void * m_mapptr = 0x0;
 
     //linux file dscriptor
-    int m_fd = -1;
+    int m_fd = 0; //0 so if(m_fd) fails if no open file, CAREFUL since 0 is stdin fd!!
 
     //all platforms
     bla::s64 m_filesize = 0;
