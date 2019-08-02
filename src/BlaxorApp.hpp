@@ -18,7 +18,6 @@ public:
     bool openFile(const char * fname);
     void setupGui();
     void setBoxHeight(int newh);
-    void findNext(const char * text);
     void refreshBox();
 
 private:

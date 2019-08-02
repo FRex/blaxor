@@ -31,13 +31,6 @@ void file_drop_cb(void * udata, const char * fname)
     app->openFile(fname);
 }
 
-void search_input_cb(Fl_Widget * w, void * udata)
-{
-    Fl_Input * input = static_cast<Fl_Input*>(w);
-    BlaxorApp * app = static_cast<BlaxorApp*>(udata);
-    app->findNext(input->value());
-}
-
 void update_label_cb(Fl_Widget * w, void * udata)
 {
     (void)w;

@@ -16,8 +16,6 @@
 #include "utf8dfa.hpp"
 #include "BlaxorApp_callbacks.hpp"
 
-const bla::s64 kMaxSearchableFileSize = 1024 * 1024 * 60;
-
 BlaxorApp::BlaxorApp()
 {
 #ifdef BLA_LINUX
@@ -118,22 +116,6 @@ static bla::s64 findAsciiInFileNext(BlaFile& file, bla::s64 start, const std::st
     }//for i
 
     return -1;
-}
-
-void BlaxorApp::findNext(const char * text)
-{
-    //only do this on small files
-    if(m_file.filesize() > kMaxSearchableFileSize)
-        return;
-
-    const bla::s64 curi = m_display->getSelectedByte();
-    const bla::s64 newi = findAsciiInFileNext(m_file, curi + 1, text);
-    if(newi >= 0)
-    {
-        m_display->setSelectedByte(newi);
-        m_display->ensureSelectionInView();
-        m_display->redraw();
-    }
 }
 
 static std::string getMaxUtf8At(BlaFile& file, bla::s64 start, int maxchars, bool * gotmore)
