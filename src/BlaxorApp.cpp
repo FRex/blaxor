@@ -20,10 +20,10 @@ const bla::s64 kMaxSearchableFileSize = 1024 * 1024 * 60;
 
 BlaxorApp::BlaxorApp()
 {
-#ifndef BLA_WINDOWS
+#ifdef BLA_LINUX
     //fix (?) for Linux where FL_SCREEN wasn't monospaced
     Fl::set_font(kHexFontFace, "monospace");
-#endif
+#endif //BLA_LINUX
     setWinTitle("nofile");
 }
 
