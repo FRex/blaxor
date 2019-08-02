@@ -4,6 +4,7 @@
 #include "BlaFile.hpp"
 #include "utf8dfa.hpp"
 #include <cassert>
+#include <cstring>
 
 int bla_text_width(const char * str)
 {

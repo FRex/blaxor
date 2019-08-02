@@ -1,7 +1,10 @@
 #include "blaDefines.hpp"
 #include "BlaFile.hpp"
 #include "osSpecific.hpp"
+
+#ifdef BLA_WINDOWS
 #include <Windows.h>
+#endif //BLA_WINDOWS
 
 BlaFile::~BlaFile()
 {
@@ -13,6 +16,8 @@ const bla::s64 kFilesizeSafeToMemMap = 100 * 1024 * 1024;
 bool BlaFile::open(const char * fname)
 {
     close();
+
+#ifdef BLA_WINDOWS
     m_winfile = CreateFileW(utf8ToUtf16(fname).c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
     if(m_winfile == INVALID_HANDLE_VALUE)
         return false;
@@ -34,6 +39,9 @@ bool BlaFile::open(const char * fname)
     }
 
     return true;
+#endif //BLA_WINDOWS
+
+    return false;
 }
 
 void BlaFile::close()
@@ -41,6 +49,7 @@ void BlaFile::close()
     m_filesize = 0;
     m_readcount = 0;
 
+#ifdef BLA_WINDOWS
     if(m_mapptr)
         UnmapViewOfFile(m_mapptr);
 
@@ -53,6 +62,8 @@ void BlaFile::close()
     m_mapptr = 0x0;
     m_maphandle = 0x0;
     m_winfile = 0x0;
+#endif //BLA_WINDOWS
+
 }
 
 bla::s64 BlaFile::filesize() const
@@ -66,6 +77,7 @@ bla::byte BlaFile::getByte(bla::s64 pos)
     if(!goodIndex(pos))
         return 0xff;
 
+#ifdef BLA_WINDOWS
     if(m_mapptr)
         return static_cast<bla::byte*>(m_mapptr)[pos];
 
@@ -81,6 +93,7 @@ bla::byte BlaFile::getByte(bla::s64 pos)
 
     if(readcount == 1)
         return ret;
+#endif //BLA_WINDOWS
 
     return 0xff;
 }
