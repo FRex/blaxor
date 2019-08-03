@@ -185,6 +185,19 @@ int BlaHexDisplay::handle(int event)
             return 1;
         }
 
+        if(0 == std::strcmp("n", Fl::event_text()))
+        {
+            searchForBottomText(false);
+            redraw();
+            return 1;
+        }
+
+        if(0 == std::strcmp("N", Fl::event_text()))
+        {
+            //TODO: search backwards
+            return 1;
+        }
+
         break;
     case FL_MOUSEWHEEL:
         if(m_linescrollbar)
@@ -583,6 +596,9 @@ static const void * mymemmem(const void * h, size_t hs, const void * n, size_t n
     if(ns == 0u)
         return h;
 
+    if(ns > hs)
+        return 0x0;
+
     const unsigned char * hh = static_cast<const unsigned char*>(h);
     const unsigned char firstbyte = *static_cast<const unsigned char*>(n);
     while(ns <= hs)
@@ -606,7 +622,7 @@ static bool searchableFile(const BlaFile * file)
 }
 
 //TODO: optimize clean up and make sure it's totally correct
-void BlaHexDisplay::searchForBottomText()
+void BlaHexDisplay::searchForBottomText(bool sameplaceok)
 {
     if(!searchableFile(m_file) || m_bottomtext.length() < 2u || m_bottomtext[0] != '/')
         return;
@@ -617,7 +633,8 @@ void BlaHexDisplay::searchForBottomText()
     const bla::byte * f = m_file->getPtr();
     const bla::s64 fl = m_file->filesize();
 
-    const void * x = mymemmem(f + m_selectedbyte, static_cast<size_t>(fl - m_selectedbyte), sp, sl);
+    const int offset = sameplaceok ? 0 : 1; //if looking for next occur then offset by 1 from selected
+    const void * x = mymemmem(f + m_selectedbyte + offset, static_cast<size_t>(fl - m_selectedbyte), sp, sl);
     if(!x)
         x = mymemmem(f, static_cast<size_t>(fl), sp, sl); //inefficient!
 
