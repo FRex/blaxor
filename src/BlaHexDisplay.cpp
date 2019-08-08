@@ -590,8 +590,33 @@ bool BlaHexDisplay::selectByteInBoxOnPushEvent(const BlaIntRect& r, int xadd, in
     return true;
 }
 
+static unsigned char asciiByteLower(unsigned char c)
+{
+    if('A' <= c && c <= 'Z')
+        return c | 32;
+
+    return c;
+}
+
+static bool sameMemoryAsciiNoCase(const void * a, const void * b, size_t c)
+{
+    const unsigned char * aa = static_cast<const unsigned char*>(a);
+    const unsigned char * bb = static_cast<const unsigned char*>(b);
+    while(c)
+    {
+        if(asciiByteLower(*aa) != asciiByteLower(*bb))
+            return false;
+
+        ++aa;
+        ++bb;
+        --c;
+    }//while
+
+    return true;
+}
+
 //TODO: for 1 char needle use memchr
-static const void * mymemmem(const void * h, size_t hs, const void * n, size_t ns)
+static const void * myMemmemNoAsciiCase(const void * h, size_t hs, const void * n, size_t ns)
 {
     if(ns == 0u)
         return h;
@@ -600,10 +625,16 @@ static const void * mymemmem(const void * h, size_t hs, const void * n, size_t n
         return 0x0;
 
     const unsigned char * hh = static_cast<const unsigned char*>(h);
-    const unsigned char firstbyte = *static_cast<const unsigned char*>(n);
+    const unsigned char firstbyte = 32 | *static_cast<const unsigned char*>(n);
+    //bit 5 (1 << 5 = 32) is bit that is set in ascii lowercase letter (same bit pattern with it unset = uppercase letter)
+    //so we set that bit in first byte of needle, and set it in each byte of haystack we inspect no matter what, to
+    //avoid ifs/cmp/branching that a strict function to lower an ascii letter byte that only sets bit 5 on [A..Z] has
+    //once a potential match of needle is found that way, we use proper strict compare that only sets bit 5 on [A..Z]
+    //benchmarking this: in debug 6-7x speed up (c.a. 60 -> 400 MiB/s), in release around 1.5x (c.a. 900 -> 1600 MiB/s)
+    //well worth it in both: in release free speed up, in debug to not freeze on searching when testing while coding
     while(ns <= hs)
     {
-        if(*hh == firstbyte && 0 == std::memcmp(hh, n, ns))
+        if((32 | *hh) == firstbyte && sameMemoryAsciiNoCase(hh, n, ns))
             return hh;
 
         --hs;
@@ -634,9 +665,9 @@ void BlaHexDisplay::searchForBottomText(bool sameplaceok)
     const bla::s64 fl = m_file->filesize();
 
     const int offset = sameplaceok ? 0 : 1; //if looking for next occur then offset by 1 from selected
-    const void * x = mymemmem(f + m_selectedbyte + offset, static_cast<size_t>(fl - m_selectedbyte), sp, sl);
+    const void * x = myMemmemNoAsciiCase(f + m_selectedbyte + offset, static_cast<size_t>(fl - m_selectedbyte), sp, sl);
     if(!x)
-        x = mymemmem(f, static_cast<size_t>(fl), sp, sl); //inefficient!
+        x = myMemmemNoAsciiCase(f, static_cast<size_t>(fl), sp, sl); //inefficient!
 
     if(x)
         setSelectedByteAndMoveView(static_cast<const bla::byte*>(x) - f);
