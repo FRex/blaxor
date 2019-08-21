@@ -148,10 +148,11 @@ bla::byte BlaFile::getByte(bla::s64 pos)
     if(!goodIndex(pos))
         return 0xff;
 
-#ifdef BLA_WINDOWS
+    //on windows and linux both if this ptr isnt null its entire file mmaped
     if(m_mapptr)
         return static_cast<bla::byte*>(m_mapptr)[pos];
 
+#ifdef BLA_WINDOWS
     LARGE_INTEGER goal;
     goal.QuadPart = pos;
     if(!SetFilePointerEx(m_winfile, goal, NULL, FILE_BEGIN))
