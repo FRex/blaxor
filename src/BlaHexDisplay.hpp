@@ -77,5 +77,6 @@ private:
     bool m_toosmall = true;
     std::string m_bottomtext;
     bool m_enteringbottomtext = false;
+    bool m_uppercasehexletters = true;
 
 };

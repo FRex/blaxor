@@ -198,6 +198,13 @@ int BlaHexDisplay::handle(int event)
             return 1;
         }
 
+        if(0 == std::strcmp("h", Fl::event_text()))
+        {
+            m_uppercasehexletters = !m_uppercasehexletters;
+            redraw();
+            return 1;
+        }
+
         break;
     case FL_MOUSEWHEEL:
         if(m_linescrollbar)
@@ -292,7 +299,10 @@ void BlaHexDisplay::drawHex(int xx, int yy)
     }
     else
     {
-        sprintf(buff, "%02x", byte);
+        if(m_uppercasehexletters)
+            sprintf(buff, "%02X", byte);
+        else
+            sprintf(buff, "%02x", byte);
     }
 
     setColorForByteDraw(byte, byteIndexAt(xx, yy));
