@@ -2,7 +2,9 @@
 A small hex viewer. Work in progress. Works on both Windows and Linux.
 **I don't recommend using it yet unless you're up for a challenege.**
 If you're interested but can't/don't want to build it or want to know all the
-controls then let me know in an issue on here.
+controls then let me know in an issue here. If you want to look for the keys to
+do search, switch to binary and upper/lowercase hex display, change font size,
+etc. yourself they are all/mostly in `int BlaHexDisplay::handle(int event)`.
 
 Uses:
 1. [FLTK 1.3.5](https://www.fltk.org) (external dependency, not included in this repo).
