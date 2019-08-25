@@ -4,7 +4,6 @@
 #include <FL/Fl_Double_Window.H>
 #include <FL/Fl_Slider.H>
 #include <FL/Fl_Button.H>
-#include <FL/Fl_Native_File_Chooser.H>
 #include "BlaHexDisplay.hpp"
 #include "BlaBox.hpp"
 #include "BlaFile.hpp"
@@ -94,28 +93,6 @@ void BlaxorApp::setBoxHeight(int newh)
     m_slider->resize(w - scrollbarw, boxh, scrollbarw, h - boxh);
 
     redrawAll();
-}
-
-static bla::s64 findAsciiInFileNext(BlaFile& file, bla::s64 start, const std::string& ascii)
-{
-    for(bla::s64 i = start; i < file.filesize(); ++i)
-    {
-        bool match = true;
-        for(unsigned j = 0; j < ascii.size(); ++j)
-        {
-            if((i + j) >= file.filesize())
-                return -1;
-
-            if(static_cast<bla::byte>(ascii[j]) != file.getByte(i + j))
-                match = false;
-
-        }//for j
-
-        if(match)
-            return i;
-    }//for i
-
-    return -1;
 }
 
 static std::string getMaxUtf8At(BlaFile& file, bla::s64 start, int maxchars, bool * gotmore)
