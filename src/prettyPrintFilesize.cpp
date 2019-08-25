@@ -34,6 +34,17 @@ static const char * getUnitForSize(bla::s64 fsize)
     return "ZiB";
 }
 
+static double adjustSize(bla::s64 bytes)
+{
+    if(bytes < (1ll << 10)) return bytes / (double)(1ll << 0);
+    if(bytes < (1ll << 20)) return bytes / (double)(1ll << 10);
+    if(bytes < (1ll << 30)) return bytes / (double)(1ll << 20);
+    if(bytes < (1ll << 40)) return bytes / (double)(1ll << 30);
+    if(bytes < (1ll << 50)) return bytes / (double)(1ll << 40);
+    if(bytes < (1ll << 60)) return bytes / (double)(1ll << 50);
+    return (bytes >> 10) / (double)(1ll << 50);
+}
+
 std::string prettyPrintFilesize(bla::s64 fsize)
 {
     if(fsize < 0)
@@ -46,11 +57,8 @@ std::string prettyPrintFilesize(bla::s64 fsize)
         return std::to_string(fsize) + " bytes";
 
     char buff[50];
+    const double value = adjustSize(fsize);
     const char * unit = getUnitForSize(fsize);
-
-    while(fsize >= (1024 * 1024))
-        fsize /= 1024;
-
-    sprintf(buff, "%.3f %s", fsize / 1024.0, unit);
+    sprintf(buff, "%.3f %s", value, unit);
     return buff;
 }
