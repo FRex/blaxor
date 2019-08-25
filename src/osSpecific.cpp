@@ -119,9 +119,4 @@ void maximizeWindow(Fl_Window * win)
     (void)win;
 }
 
-//no non-windows impl to cause linker error if used outside of ifdef BLA_WINDOWS
-//TODO: make portable UTF conversions that aren't using WinAPI at all
-//std::string utf16ToUtf8(const wchar_t * str);
-//std::wstring utf8ToUtf16(const char * str);
-
 #endif //BLA_WINDOWS
