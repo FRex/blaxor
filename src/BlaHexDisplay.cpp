@@ -9,6 +9,7 @@
 #include <algorithm>
 #include "blaHelpers.hpp"
 #include <cassert>
+#include "utf8dfa.hpp"
 
 BlaHexDisplay::BlaHexDisplay(int x, int y, int w, int h, const char * label) : Fl_Widget(x, y, w, h, label)
 {
@@ -121,7 +122,7 @@ int BlaHexDisplay::handle(int event)
                 redraw();
             }
             return 1;
-        break;
+            break;
         }//switch event key
 
         if(m_enteringbottomtext)
@@ -662,6 +663,68 @@ static bool searchableFile(const BlaFile * file)
     return file && file->getPtr() && (file->filesize() < kSearchableFileSize);
 }
 
+void utf8ToUtf16LEbytes(const char * s, std::vector<bla::byte>& out)
+{
+    unsigned state = utf8dfa::kAcceptState;
+    unsigned codepoint = 0u;
+    out.clear();
+
+    while(*s)
+    {
+        utf8dfa::decode(&state, &codepoint, static_cast<bla::u8>(*s));
+        ++s;
+        if(utf8dfa::kAcceptState != state)
+            continue;
+
+        if(codepoint <= 0xffff)
+        {
+            out.push_back((codepoint >> 8) & 255);
+            out.push_back((codepoint >> 0) & 255);
+        }
+        else
+        {
+            const unsigned c1 = 0xd7c0 + (codepoint >> 10);
+            out.push_back((c1 >> 8) & 255);
+            out.push_back((c1 >> 0) & 255);
+
+            const unsigned c2 = 0xdc00 + (codepoint & 0x3ff);
+            out.push_back((c2 >> 8) & 255);
+            out.push_back((c2 >> 0) & 255);
+        }
+    }//while
+}
+
+const void * myMemmem(const void * h, size_t hs, const void * n, size_t ns)
+{
+    if(ns == 0u)
+        return h;
+
+    const unsigned char * hh = static_cast<const unsigned char*>(h);
+    const unsigned char firstbyte = *static_cast<const unsigned char*>(n);
+    while(ns <= hs)
+    {
+        if(*hh == firstbyte && 0 == std::memcmp(hh, n, ns))
+            return hh;
+
+        --hs;
+        ++hh;
+    }//while
+
+    return 0x0;
+}
+
+static const void * smallerFullPointer(const void * a, const void * b)
+{
+    if(a == 0x0)
+        return b;
+
+    if(b == 0x0)
+        return a;
+
+    //by now we know neither is null
+    return (a < b) ? a : b;
+}
+
 //TODO: optimize clean up and make sure it's totally correct
 void BlaHexDisplay::searchForBottomText(bool sameplaceok)
 {
@@ -674,13 +737,26 @@ void BlaHexDisplay::searchForBottomText(bool sameplaceok)
     const bla::byte * f = m_file->getPtr();
     const bla::s64 fl = m_file->filesize();
 
-    const int offset = sameplaceok ? 0 : 1; //if looking for next occur then offset by 1 from selected
-    const void * x = myMemmemNoAsciiCase(f + m_selectedbyte + offset, static_cast<size_t>(fl - m_selectedbyte), sp, sl);
-    if(!x)
-        x = myMemmemNoAsciiCase(f, static_cast<size_t>(fl), sp, sl); //inefficient!
+    std::vector<bla::byte> b;
+    utf8ToUtf16LEbytes(sp, b);
 
-    if(x)
-        setSelectedByteAndMoveView(static_cast<const bla::byte*>(x) - f);
+    const int offset = sameplaceok ? 0 : 1; //if looking for next occur then offset by 1 from selected
+
+    const void * x = myMemmemNoAsciiCase(f + m_selectedbyte + offset, static_cast<size_t>(fl - m_selectedbyte - offset), sp, sl);
+    //todo: this does utf16le aka one in windows, make it case insensitive for ascii too
+    const void * y = myMemmem(f + m_selectedbyte + offset, static_cast<size_t>(fl - m_selectedbyte - offset), b.data(), b.size());
+    const void * z = smallerFullPointer(x, y);
+
+    if(!z)
+    {
+        x = myMemmemNoAsciiCase(f, static_cast<size_t>(fl), sp, sl); //inefficient!
+        //todo: as above -- ineffictient + do ascii case insensitive
+        y = myMemmem(f, static_cast<size_t>(fl), b.data(), b.size());
+        z = smallerFullPointer(x, y);
+    }
+
+    if(z)
+        setSelectedByteAndMoveView(static_cast<const bla::byte*>(z) - f);
 }
 
 void BlaHexDisplay::setSelectedByteAndMoveView(bla::s64 byteidx)
