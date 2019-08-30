@@ -663,7 +663,7 @@ static bool searchableFile(const BlaFile * file)
     return file && file->getPtr() && (file->filesize() < kSearchableFileSize);
 }
 
-void utf8ToUtf16LEbytes(const char * s, std::vector<bla::byte>& out)
+static void utf8ToUtf16LEbytes(const char * s, std::vector<bla::byte>& out)
 {
     unsigned state = utf8dfa::kAcceptState;
     unsigned codepoint = 0u;
@@ -694,7 +694,7 @@ void utf8ToUtf16LEbytes(const char * s, std::vector<bla::byte>& out)
     }//while
 }
 
-const void * myMemmem(const void * h, size_t hs, const void * n, size_t ns)
+static const void * myMemmem(const void * h, size_t hs, const void * n, size_t ns)
 {
     if(ns == 0u)
         return h;
