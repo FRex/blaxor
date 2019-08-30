@@ -9,7 +9,7 @@
 #include <algorithm>
 #include "blaHelpers.hpp"
 #include <cassert>
-#include "utf8dfa.hpp"
+#include "binaryParse.hpp"
 
 BlaHexDisplay::BlaHexDisplay(int x, int y, int w, int h, const char * label) : Fl_Widget(x, y, w, h, label)
 {
@@ -46,27 +46,6 @@ void BlaHexDisplay::draw()
 static bool eventinrect(int x, int y, BlaIntRect r)
 {
     return Fl::event_inside(x + r.x, y + r.y, r.w, r.h);
-    return false;
-}
-
-static bool isUtf8ContinuationChar(char c)
-{
-    const int cc = static_cast<unsigned char>(c);
-    return 2 == (cc >> 6);
-}
-
-//TODO: asserts for UTF-8 consistency just in case?
-static std::string stripOneUtf8FromEnd(std::string s)
-{
-    //pop all the utf-8 continuation bytes off first, maybe none if last char is ascii...
-    while(s.length() > 0u && isUtf8ContinuationChar(s.back()))
-        s.pop_back();
-
-    //...now pop one more off, the utf-8 starting byte, or the ascii
-    if(s.length() > 0u)
-        s.pop_back();
-
-    return s;
 }
 
 int BlaHexDisplay::handle(int event)
@@ -601,128 +580,12 @@ bool BlaHexDisplay::selectByteInBoxOnPushEvent(const BlaIntRect& r, int xadd, in
     return true;
 }
 
-static unsigned char asciiByteLower(unsigned char c)
-{
-    if('A' <= c && c <= 'Z')
-        return c | 32;
-
-    return c;
-}
-
-static bool sameMemoryAsciiNoCase(const void * a, const void * b, size_t c)
-{
-    const unsigned char * aa = static_cast<const unsigned char*>(a);
-    const unsigned char * bb = static_cast<const unsigned char*>(b);
-    while(c)
-    {
-        if(asciiByteLower(*aa) != asciiByteLower(*bb))
-            return false;
-
-        ++aa;
-        ++bb;
-        --c;
-    }//while
-
-    return true;
-}
-
-//TODO: for 1 char needle use memchr
-static const void * myMemmemNoAsciiCase(const void * h, size_t hs, const void * n, size_t ns)
-{
-    if(ns == 0u)
-        return h;
-
-    if(ns > hs)
-        return 0x0;
-
-    const unsigned char * hh = static_cast<const unsigned char*>(h);
-    const unsigned char firstbyte = 32 | *static_cast<const unsigned char*>(n);
-    //bit 5 (1 << 5 = 32) is bit that is set in ascii lowercase letter (same bit pattern with it unset = uppercase letter)
-    //so we set that bit in first byte of needle, and set it in each byte of haystack we inspect no matter what, to
-    //avoid ifs/cmp/branching that a strict function to lower an ascii letter byte that only sets bit 5 on [A..Z] has
-    //once a potential match of needle is found that way, we use proper strict compare that only sets bit 5 on [A..Z]
-    //benchmarking this: in debug 6-7x speed up (c.a. 60 -> 400 MiB/s), in release around 1.5x (c.a. 900 -> 1600 MiB/s)
-    //well worth it in both: in release free speed up, in debug to not freeze on searching when testing while coding
-    while(ns <= hs)
-    {
-        if((32 | *hh) == firstbyte && sameMemoryAsciiNoCase(hh, n, ns))
-            return hh;
-
-        --hs;
-        ++hh;
-    }//while
-
-    return 0x0;
-}
-
 //max size of file that we do search on, also has to be mmapped so actual max is min of this and limit of mmap
 const bla::s64 kSearchableFileSize = 100 * 1024 * 1024;
 
 static bool searchableFile(const BlaFile * file)
 {
     return file && file->getPtr() && (file->filesize() < kSearchableFileSize);
-}
-
-static void utf8ToUtf16LEbytes(const char * s, std::vector<bla::byte>& out)
-{
-    unsigned state = utf8dfa::kAcceptState;
-    unsigned codepoint = 0u;
-    out.clear();
-
-    while(*s)
-    {
-        utf8dfa::decode(&state, &codepoint, static_cast<bla::u8>(*s));
-        ++s;
-        if(utf8dfa::kAcceptState != state)
-            continue;
-
-        if(codepoint <= 0xffff)
-        {
-            out.push_back((codepoint >> 8) & 255);
-            out.push_back((codepoint >> 0) & 255);
-        }
-        else
-        {
-            const unsigned c1 = 0xd7c0 + (codepoint >> 10);
-            out.push_back((c1 >> 8) & 255);
-            out.push_back((c1 >> 0) & 255);
-
-            const unsigned c2 = 0xdc00 + (codepoint & 0x3ff);
-            out.push_back((c2 >> 8) & 255);
-            out.push_back((c2 >> 0) & 255);
-        }
-    }//while
-}
-
-static const void * myMemmem(const void * h, size_t hs, const void * n, size_t ns)
-{
-    if(ns == 0u)
-        return h;
-
-    const unsigned char * hh = static_cast<const unsigned char*>(h);
-    const unsigned char firstbyte = *static_cast<const unsigned char*>(n);
-    while(ns <= hs)
-    {
-        if(*hh == firstbyte && 0 == std::memcmp(hh, n, ns))
-            return hh;
-
-        --hs;
-        ++hh;
-    }//while
-
-    return 0x0;
-}
-
-static const void * smallerFullPointer(const void * a, const void * b)
-{
-    if(a == 0x0)
-        return b;
-
-    if(b == 0x0)
-        return a;
-
-    //by now we know neither is null
-    return (a < b) ? a : b;
 }
 
 //TODO: optimize clean up and make sure it's totally correct
