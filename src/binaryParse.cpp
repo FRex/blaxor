@@ -161,18 +161,18 @@ void utf8ToUtf16LEbytes(const char * s, std::vector<bla::byte>& out)
 
         if(codepoint <= 0xffff)
         {
-            out.push_back((codepoint >> 8) & 255);
             out.push_back((codepoint >> 0) & 255);
+            out.push_back((codepoint >> 8) & 255);
         }
         else
         {
             const unsigned c1 = 0xd7c0 + (codepoint >> 10);
-            out.push_back((c1 >> 8) & 255);
             out.push_back((c1 >> 0) & 255);
+            out.push_back((c1 >> 8) & 255);
 
             const unsigned c2 = 0xdc00 + (codepoint & 0x3ff);
-            out.push_back((c2 >> 8) & 255);
             out.push_back((c2 >> 0) & 255);
+            out.push_back((c2 >> 8) & 255);
         }
     }//while
 }
