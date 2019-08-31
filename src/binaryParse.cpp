@@ -100,7 +100,7 @@ static bla::byte asciiByteLower(bla::byte c)
     return c;
 }
 
-static bool sameMemoryAsciiNoCase(const void * a, const void * b, size_t c)
+static bool sameMemoryAsciiNoCaseUtf8(const void * a, const void * b, size_t c)
 {
     const unsigned char * aa = static_cast<const unsigned char*>(a);
     const unsigned char * bb = static_cast<const unsigned char*>(b);
@@ -118,7 +118,7 @@ static bool sameMemoryAsciiNoCase(const void * a, const void * b, size_t c)
 }
 
 //TODO: for 1 char needle use memchr
-const void * myMemmemNoAsciiCase(const void * h, size_t hs, const void * n, size_t ns)
+const void * myMemmemNoAsciiCaseUtf8(const void * h, size_t hs, const void * n, size_t ns)
 {
     if(ns == 0u)
         return h;
@@ -136,7 +136,7 @@ const void * myMemmemNoAsciiCase(const void * h, size_t hs, const void * n, size
     //well worth it in both: in release free speed up, in debug to not freeze on searching when testing while coding
     while(ns <= hs)
     {
-        if((32 | *hh) == firstbyte && sameMemoryAsciiNoCase(hh, n, ns))
+        if((32 | *hh) == firstbyte && sameMemoryAsciiNoCaseUtf8(hh, n, ns))
             return hh;
 
         --hs;
@@ -187,6 +187,64 @@ const void * myMemmem(const void * h, size_t hs, const void * n, size_t ns)
     while(ns <= hs)
     {
         if(*hh == firstbyte && 0 == std::memcmp(hh, n, ns))
+            return hh;
+
+        --hs;
+        ++hh;
+    }//while
+
+    return 0x0;
+}
+
+static bool sameMemoryAsciiNoCaseUtf16LE(const void * a, const void * b, size_t c)
+{
+    const unsigned char * aa = static_cast<const unsigned char*>(a);
+    const unsigned char * bb = static_cast<const unsigned char*>(b);
+
+    while(c)
+    {
+        //if this is last byte (shouldn't happen but still) just compare as ascii, assuming 1 past array is 0 if not given?
+        if(c == 1)
+            return asciiByteLower(*aa) == asciiByteLower(*bb);
+
+        //now we know: c > 1 so this is okay, if odd byte isnt same then return false
+        if(aa[1] != bb[1])
+            return false;
+
+        //now we know: aa[1] == bb[1], so if its an 8 bit codeunit in the 16 bits of aa/bb[1,0] then try ascii
+        //lowered comparison, else do strict one, in case it happens to look like ascii letters in aa/bb[0] but
+        //its just part of some 16 bit non-ascii codeunit (would be rare/annoying bug to catch!)
+        if(aa[1] == 0x0)
+        {
+            if(asciiByteLower(*aa) != asciiByteLower(*bb))
+                return false;
+        }
+        else
+        {
+            if(*aa != *bb)
+                return false;
+        }
+
+        //advance by TWO
+        aa += 2;
+        bb += 2;
+        c -= 2;
+    }//while
+
+    //return true if we ran out of bytes without hitting mismatch and there was even number - the normal case
+    return true;
+}
+
+const void * myMemmemNoAsciiCaseUtf16LE(const void * h, size_t hs, const void * n, size_t ns)
+{
+    if(ns == 0u)
+        return h;
+
+    const unsigned char * hh = static_cast<const unsigned char*>(h);
+    const unsigned char firstbyte = 32 | *static_cast<const unsigned char*>(n);
+    while(ns <= hs)
+    {
+        if((32 | *hh) == firstbyte && sameMemoryAsciiNoCaseUtf16LE(hh, n, ns))
             return hh;
 
         --hs;

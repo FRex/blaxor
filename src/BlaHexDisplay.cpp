@@ -605,16 +605,16 @@ void BlaHexDisplay::searchForBottomText(bool sameplaceok)
 
     const int offset = sameplaceok ? 0 : 1; //if looking for next occur then offset by 1 from selected
 
-    const void * x = myMemmemNoAsciiCase(f + m_selectedbyte + offset, static_cast<size_t>(fl - m_selectedbyte - offset), sp, sl);
+    const void * x = myMemmemNoAsciiCaseUtf8(f + m_selectedbyte + offset, static_cast<size_t>(fl - m_selectedbyte - offset), sp, sl);
     //todo: this does utf16le aka one in windows, make it case insensitive for ascii too
-    const void * y = myMemmem(f + m_selectedbyte + offset, static_cast<size_t>(fl - m_selectedbyte - offset), b.data(), b.size());
+    const void * y = myMemmemNoAsciiCaseUtf16LE(f + m_selectedbyte + offset, static_cast<size_t>(fl - m_selectedbyte - offset), b.data(), b.size());
     const void * z = smallerFullPointer(x, y);
 
     if(!z)
     {
-        x = myMemmemNoAsciiCase(f, static_cast<size_t>(fl), sp, sl); //inefficient!
+        x = myMemmemNoAsciiCaseUtf8(f, static_cast<size_t>(fl), sp, sl); //inefficient!
         //todo: as above -- ineffictient + do ascii case insensitive
-        y = myMemmem(f, static_cast<size_t>(fl), b.data(), b.size());
+        y = myMemmemNoAsciiCaseUtf16LE(f, static_cast<size_t>(fl), b.data(), b.size());
         z = smallerFullPointer(x, y);
     }
 

@@ -20,10 +20,12 @@ bla::s8 endianless_s8(void * data);
 
 std::string stripOneUtf8FromEnd(std::string s);
 
-const void * myMemmemNoAsciiCase(const void * h, size_t hs, const void * n, size_t ns);
+const void * myMemmemNoAsciiCaseUtf8(const void * h, size_t hs, const void * n, size_t ns);
 
 void utf8ToUtf16LEbytes(const char * s, std::vector<bla::byte>& out);
 
 const void * myMemmem(const void * h, size_t hs, const void * n, size_t ns);
+
+const void * myMemmemNoAsciiCaseUtf16LE(const void * h, size_t hs, const void * n, size_t ns);
 
 const void * smallerFullPointer(const void * a, const void * b);
