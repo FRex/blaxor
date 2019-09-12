@@ -177,6 +177,11 @@ void utf8ToUtf16LEbytes(const char * s, std::vector<bla::byte>& out)
     }//while
 }
 
+static bool sameMemory(const void * a, const void * b, size_t c)
+{
+    return 0 == std::memcmp(a, b, c);
+}
+
 const void * myMemmem(const void * h, size_t hs, const void * n, size_t ns)
 {
     if(ns == 0u)
@@ -186,7 +191,7 @@ const void * myMemmem(const void * h, size_t hs, const void * n, size_t ns)
     const unsigned char firstbyte = *static_cast<const unsigned char*>(n);
     while(ns <= hs)
     {
-        if(*hh == firstbyte && 0 == std::memcmp(hh, n, ns))
+        if(*hh == firstbyte && sameMemory(hh, n, ns))
             return hh;
 
         --hs;
