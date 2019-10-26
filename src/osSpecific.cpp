@@ -10,6 +10,8 @@
 
 #include <Windows.h>
 
+static_assert(sizeof(wchar_t) == 2, "sizeof(wchar_t) must be 2 on Windows");
+
 namespace {
 
 class FileDropHandling
@@ -89,18 +91,18 @@ void maximizeWindow(Fl_Window * win)
 
 std::string utf16ToUtf8(const wchar_t * str)
 {
-    const size_t utf8len = wcslen(str) * 3 + 10;
+    const int utf8len = static_cast<int>(wcslen(str) * 3 + 10);
     std::vector<char> ret;
-    ret.resize(utf8len);
+    ret.resize(utf8len, '\0');
     WideCharToMultiByte(CP_UTF8, 0, str, -1, ret.data(), utf8len, NULL, NULL);
     return ret.data();
 }
 
 std::wstring utf8ToUtf16(const char * str)
 {
-    const size_t utf16len = strlen(str) + 10;
+    const int utf16len = static_cast<int>(strlen(str) + 10);
     std::vector<wchar_t> ret;
-    ret.resize(utf16len);
+    ret.resize(utf16len, L'\0');
     MultiByteToWideChar(CP_UTF8, 0, str, -1, ret.data(), utf16len);
     return ret.data();
 }
