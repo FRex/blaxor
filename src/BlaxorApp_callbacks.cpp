@@ -25,9 +25,12 @@ void update_label_to(void * data)
     Fl::repeat_timeout(kBoxLabelUpdateTimeout, &update_label_to, data);
 }
 
-void file_drop_cb(void * udata, const char * fname)
+void file_drop_cb(void * udata, const char * fname, int index)
 {
     BlaxorApp * app = static_cast<BlaxorApp*>(udata);
+    if(index == 0)
+        app->closeAllFiles();
+
     app->openFile(fname);
 }
 

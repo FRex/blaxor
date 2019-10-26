@@ -175,6 +175,11 @@ void BlaxorApp::refreshBox()
     m_box->copy_label(buff);
 }
 
+void BlaxorApp::closeAllFiles()
+{
+    printf("close all files\n");
+}
+
 void BlaxorApp::redrawAll()
 {
     Fl_Widget * ws[] = { m_box, m_display, m_slider, m_button, m_topgroup };

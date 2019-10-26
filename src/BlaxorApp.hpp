@@ -19,6 +19,7 @@ public:
     void setupGui();
     void setBoxHeight(int newh);
     void refreshBox();
+    void closeAllFiles();
 
 private:
     void redrawAll();

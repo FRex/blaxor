@@ -42,14 +42,14 @@ LRESULT CALLBACK mycallback(HWND handle, UINT message, WPARAM wParam, LPARAM lPa
     if(message == WM_DROPFILES)
     {
         HDROP hdrop = reinterpret_cast<HDROP>(wParam);
-        const UINT filescount = DragQueryFile(hdrop, 0xFFFFFFFF, NULL, 0);
+        const UINT filescount = DragQueryFileW(hdrop, 0xFFFFFFFF, NULL, 0);
         for(UINT i = 0; i < filescount; ++i)
         {
-            const UINT bufsize = DragQueryFile(hdrop, i, NULL, 0);
+            const UINT bufsize = DragQueryFileW(hdrop, i, NULL, 0);
             std::wstring str;
             str.resize(bufsize + 1);
             if(DragQueryFileW(hdrop, i, &str[0], bufsize + 1))
-                h->callback(h->udata, utf16ToUtf8(str.c_str()).c_str());
+                h->callback(h->udata, utf16ToUtf8(str.c_str()).c_str(), static_cast<int>(i));
         }
 
         DragFinish(hdrop);

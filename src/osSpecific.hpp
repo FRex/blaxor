@@ -4,7 +4,7 @@
 
 class Fl_Window;
 
-typedef void (*FileDropCallback)(void *, const char *);
+typedef void (*FileDropCallback)(void *, const char *, int);
 
 void enableFileDropOnWindow(Fl_Window * win, FileDropCallback callback, void * udata);
 
