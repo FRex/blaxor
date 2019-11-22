@@ -290,6 +290,10 @@ void BlaHexDisplay::drawHex(int xx, int yy)
     if(selectedByteAt(xx, yy))
         fl_color(FL_YELLOW);
 
+    const auto bi = byteIndexAt(xx, yy);
+    if(m_selectedbyte < bi && bi < m_selectedbyte + 4)
+        fl_color(FL_DARK_YELLOW);
+
     fl_draw(buff, xpos, ypos);
 }
 
@@ -310,6 +314,10 @@ void BlaHexDisplay::drawChar(int xx, int yy)
 
     if(selectedByteAt(xx, yy))
         fl_color(FL_YELLOW);
+
+    const auto bi = byteIndexAt(xx, yy);
+    if(m_selectedbyte < bi && bi < m_selectedbyte + 4)
+        fl_color(FL_DARK_YELLOW);
 
     fl_draw(buff, xpos, ypos);
 }
