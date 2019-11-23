@@ -1,5 +1,6 @@
 #include "binaryParse.hpp"
 #include "utf8dfa.hpp"
+#include <cstring>
 
 bla::u32 little_u32(void * data)
 {
