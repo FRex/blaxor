@@ -177,7 +177,7 @@ bla::byte BlaFile::getByte(bla::s64 pos)
         return ret;
 
     if(ok == -1)
-        fprintf(stderr, "FAIL: call pread(%d, ptr, 1, static_cast<off_t>(%ldd)) failed, errno = %d",
+        fprintf(stderr, "FAIL: call pread(%d, ptr, 1, static_cast<off_t>(%lld)) failed, errno = %d",
             m_fd, pos, errno);
 #endif //BLA_LINUX
 
