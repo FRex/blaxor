@@ -36,7 +36,16 @@ bool BlaxorApp::openFile(const char * fname)
 
     setWinTitle(fname + std::string(": ") + prettyPrintFilesize(m_file.filesize()));
     if(m_display)
+    {
         m_display->recalculateMetrics();
+
+        //if a small file is loaded after a big file is loaded already and a byte with index
+        //so high selcted that its not a valid index in the new file, the display messes up
+        //it can be fixed manually with Ctrl + Home, and by scrolling the Mouse Scroll
+        //this SHOULD fix it programatically
+        m_display->setFirstDisplayedLine(0);
+        m_display->setSelectedByte(0);
+    }
 
     refreshBox();
     redrawAll();
